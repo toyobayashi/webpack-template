@@ -1,0 +1,43 @@
+{
+  "name": "template-react-ts",
+  "version": "1.0.0",
+  "description": "template-react-ts",
+  "main": "./src/index.tsx",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development ts-node -P ./script/tsconfig.json ./script/webpack.ts",
+    "prod": "cross-env NODE_ENV=production ts-node -P ./script/tsconfig.json ./script/webpack.ts"
+  },
+  "keywords": [
+    "react",
+    "typescript"
+  ],
+  "author": "toyobayashi",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/html-webpack-plugin": "2.30.3",
+    "@types/mini-css-extract-plugin": "0.2.0",
+    "@types/node": "10.5.1",
+    "@types/optimize-css-assets-webpack-plugin": "1.3.3",
+    "@types/react": "16.4.6",
+    "@types/react-dom": "16.0.6",
+    "@types/uglifyjs-webpack-plugin": "1.1.0",
+    "@types/webpack": "4.4.5",
+    "@types/webpack-serve": "1.0.4",
+    "cross-env": "5.2.0",
+    "css-loader": "0.28.11",
+    "html-webpack-plugin": "3.2.0",
+    "mini-css-extract-plugin": "0.4.1",
+    "optimize-css-assets-webpack-plugin": "4.0.3",
+    "react": "16.4.1",
+    "react-dom": "16.4.1",
+    "style-loader": "0.21.0",
+    "ts-loader": "4.4.2",
+    "ts-node": "7.0.0",
+    "tslint": "5.10.0",
+    "tslint-config-standard": "7.1.0",
+    "typescript": "2.9.2",
+    "uglifyjs-webpack-plugin": "1.2.7",
+    "webpack": "4.15.1",
+    "webpack-serve": "1.0.4"
+  }
+}
