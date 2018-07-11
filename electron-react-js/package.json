@@ -1,0 +1,42 @@
+{
+  "name": "template-electron-react-js",
+  "version": "1.0.0",
+  "description": "template-electron-react-js",
+  "main": "./public/main.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development node ./script/webpack.js",
+    "prod": "cross-env NODE_ENV=production node ./script/webpack.js",
+    "start": "electron . --enable-logging"
+  },
+  "keywords": [
+    "react",
+    "electron"
+  ],
+  "author": "toyobayashi",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "6.26.3",
+    "babel-loader": "7.1.4",
+    "babel-preset-react": "6.24.1",
+    "cross-env": "5.2.0",
+    "css-loader": "0.28.11",
+    "electron": "2.0.4",
+    "eslint": "5.0.1",
+    "eslint-config-standard": "11.0.0",
+    "eslint-plugin-import": "2.13.0",
+    "eslint-plugin-node": "6.0.1",
+    "eslint-plugin-promise": "3.8.0",
+    "eslint-plugin-react": "7.10.0",
+    "eslint-plugin-standard": "3.1.0",
+    "html-webpack-plugin": "3.2.0",
+    "mini-css-extract-plugin": "0.4.1",
+    "optimize-css-assets-webpack-plugin": "4.0.3",
+    "react": "16.4.1",
+    "react-dom": "16.4.1",
+    "react-hot-loader": "4.3.3",
+    "style-loader": "0.21.0",
+    "uglifyjs-webpack-plugin": "1.2.7",
+    "webpack": "4.15.1",
+    "webpack-serve": "2.0.2"
+  }
+}
