@@ -1,5 +1,4 @@
 import webpack from 'webpack'
-import webpackServe from 'webpack-serve'
 import webpackConfig from './webpack.config'
 import config from './config'
 
@@ -25,9 +24,9 @@ if (process.env.NODE_ENV === 'production') {
     }) + '\n')
   })
 
-  webpackServe({
+  require('webpack-serve')({}, {
     config: webpackConfig.rendererConfig,
-    hot: {
+    hotClient: {
       reload: false,
       port: config.websocketPort,
       validTargets: ['electron-renderer']

@@ -5,18 +5,15 @@ const config = require('./config.js')
 
 if (process.env.NODE_ENV === 'production') {
   webpack(webpackConfig, (err, stats) => {
-    if (err) {
-      console.log(err)
-      return
-    }
+    if (err) return console.log(err)
     console.log(stats.toString({
       colors: true
     }) + '\n')
   })
 } else {
-  webpackServe({
+  webpackServe({}, {
     config: webpackConfig,
-    hot: {
+    hotClient: {
       reload: false,
       port: config.websocketPort
     },

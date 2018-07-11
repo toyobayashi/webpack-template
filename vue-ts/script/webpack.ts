@@ -1,5 +1,4 @@
 import webpack from 'webpack'
-import webpackServe from 'webpack-serve'
 import webpackConfig from './webpack.config'
 import config from './config'
 
@@ -14,9 +13,9 @@ if (process.env.NODE_ENV === 'production') {
     }) + '\n')
   })
 } else {
-  webpackServe({
+  require('webpack-serve')({}, {
     config: webpackConfig,
-    hot: {
+    hotClient: {
       reload: false,
       port: config.websocketPort
     },

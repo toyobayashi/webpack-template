@@ -5,6 +5,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
 import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 import { VueLoaderPlugin } from 'vue-loader'
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 
 let webpackConfig: Configuration = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -26,7 +27,8 @@ let webpackConfig: Configuration = {
           {
             loader: 'ts-loader',
             options: {
-              appendTsSuffixTo: [/\.vue$/]
+              appendTsSuffixTo: [/\.vue$/],
+              transpileOnly: process.env.NODE_ENV !== 'production'
             }
           }
         ]
@@ -76,6 +78,11 @@ if (process.env.NODE_ENV === 'production') {
       new OptimizeCSSAssetsPlugin({})
     ]
   }
+} else {
+  webpackConfig.plugins = [
+    ...(webpackConfig.plugins || []),
+    new ForkTsCheckerWebpackPlugin()
+  ]
 }
 
 export default webpackConfig

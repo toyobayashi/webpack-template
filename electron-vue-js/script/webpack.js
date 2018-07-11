@@ -25,9 +25,9 @@ if (process.env.NODE_ENV === 'production') {
     }) + '\n')
   })
 
-  webpackServe({
+  webpackServe({}, {
     config: webpackConfig.rendererConfig,
-    hot: {
+    hotClient: {
       reload: false,
       port: config.websocketPort,
       validTargets: ['electron-renderer']

@@ -33,6 +33,6 @@
     "vue-loader": "15.2.4",
     "vue-template-compiler": "2.5.16",
     "webpack": "4.15.1",
-    "webpack-serve": "github:toyobayashi/webpack-serve#Branch_v1.0.4"
+    "webpack-serve": "2.0.2"
   }
 }
