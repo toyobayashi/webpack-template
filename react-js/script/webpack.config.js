@@ -18,7 +18,18 @@ let webpackConfig = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'babel-loader'
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                'react',
+                [
+                  'env', {
+                    modules: false
+                  }
+                ]
+              ],
+              plugins: process.env.NODE_ENV !== 'production' ? ['react-hot-loader/babel'] : void 0
+            }
           }
         ]
       },
