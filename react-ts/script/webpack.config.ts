@@ -19,7 +19,17 @@ let webpackConfig: Configuration = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader'
+            loader: 'babel-loader',
+            options: {
+              // babelrc: false,
+              plugins: ['react-hot-loader/babel']
+            }
+          },
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: process.env.NODE_ENV === 'production' ? 'tsconfig.json' : 'tsconfig.dev.json',
+            }
           }
         ]
       },
