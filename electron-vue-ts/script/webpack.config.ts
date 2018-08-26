@@ -1,20 +1,22 @@
-import path from 'path'
+import * as path from 'path'
 import { Configuration } from 'webpack'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
-import MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
-import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
+import * as HtmlWebpackPlugin from 'html-webpack-plugin'
+import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
+import * as UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 import { VueLoaderPlugin } from 'vue-loader'
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
+import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development'
 
 let mainConfig: Configuration = {
   mode,
   target: 'electron-main',
-  entry: [path.join(__dirname, '../src/main.ts')],
+  entry: {
+    main: [path.join(__dirname, '../src/main.ts')]
+  },
   output: {
-    filename: 'main.js',
+    filename: '[name].js',
     path: path.join(__dirname, '../public')
   },
   node: {
@@ -37,9 +39,12 @@ let mainConfig: Configuration = {
 
 let rendererConfig: Configuration = {
   mode,
-  entry: [path.join(__dirname, '../src/index.ts')],
+  target: 'electron-renderer',
+  entry: {
+    renderer: [path.join(__dirname, '../src/index.ts')]
+  },
   output: {
-    filename: 'renderer.js',
+    filename: '[name].js',
     path: path.join(__dirname, '../public')
   },
   node: {
@@ -80,8 +85,8 @@ let rendererConfig: Configuration = {
   plugins: [
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
-      title: 'template-electron-vue-js',
-      template: path.join(__dirname, '../src/index.html')
+      inject: false,
+      template: path.join(__dirname, '../src/index.template.ts')
     })
   ]
 }
@@ -103,7 +108,7 @@ if (process.env.NODE_ENV === 'production') {
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),
     new MiniCssExtractPlugin({
-      filename: 'renderer.css'
+      filename: '[name].css'
     })
   ]
   rendererConfig.optimization = {
