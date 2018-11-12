@@ -4,13 +4,22 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const webpack = require('webpack')
+const config = require('./config.json')
+
+const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development'
+const root = path.join(__dirname, '..')
+const getPath = (...args) => path.join(root, ...args)
 
 let webpackConfig = {
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  entry: ['babel-polyfill', path.join(__dirname, '../src/index.js')],
+  mode,
+  context: root,
+  entry: {
+    main: ['@babel/polyfill', getPath('./src/index.js')]
+  },
   output: {
-    filename: 'main.js',
-    path: path.join(__dirname, '../public')
+    filename: '[name].js',
+    path: getPath(config.publicPath)
   },
   module: {
     rules: [
@@ -20,13 +29,21 @@ let webpackConfig = {
       },
       {
         test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            [
+              '@babel/preset-env', {
+                modules: false
+              }
+            ]
+          ]
+        }
       },
       {
         test: /\.css$/,
         use: [
-          process.env.NODE_ENV === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+          mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
           'css-loader'
         ]
       }
@@ -36,16 +53,16 @@ let webpackConfig = {
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
       title: 'template-vue-js',
-      template: path.join(__dirname, '../src/index.html')
+      template: getPath('./src/index.html')
     })
   ]
 }
 
-if (process.env.NODE_ENV === 'production') {
+if (mode === 'production') {
   webpackConfig.plugins = [
     ...(webpackConfig.plugins || []),
     new MiniCssExtractPlugin({
-      filename: 'main.css'
+      filename: '[name].css'
     })
   ]
   webpackConfig.optimization = {
@@ -54,17 +71,21 @@ if (process.env.NODE_ENV === 'production') {
         parallel: true,
         cache: true,
         uglifyOptions: {
-          ecma: 5,
           output: {
-            comments: false,
-            beautify: false
-          },
-          warnings: false
+            comments: false
+          }
         }
       }),
       new OptimizeCSSAssetsPlugin({})
     ]
   }
+} else {
+  webpackConfig.devtool = 'eval-source-map'
+  webpackConfig.output && (webpackConfig.output.publicPath = config.publicPath)
+  webpackConfig.plugins = [
+    ...(webpackConfig.plugins || []),
+    new webpack.HotModuleReplacementPlugin()
+  ]
 }
 
 module.exports = webpackConfig

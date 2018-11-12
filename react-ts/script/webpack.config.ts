@@ -28,7 +28,7 @@ let webpackConfig: Configuration = {
           {
             loader: 'ts-loader',
             options: {
-              configFile: process.env.NODE_ENV === 'production' ? 'tsconfig.json' : 'tsconfig.dev.json',
+              configFile: process.env.NODE_ENV === 'production' ? 'tsconfig.json' : 'tsconfig.dev.json'
             }
           }
         ]
