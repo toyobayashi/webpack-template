@@ -16,10 +16,10 @@ if (require.main === module) {
 }
 
 function main () {
+  if (process.env.NODE_ENV === 'production') return prod()
   if (webpackConfig.output) {
     if (fs.existsSync(webpackConfig.output.path)) fs.removeSync(webpackConfig.output.path)
   }
-  if (process.env.NODE_ENV === 'production') return prod()
   const devServerOptions = {
     stats: statsOptions,
     hot: true,
@@ -37,6 +37,9 @@ function main () {
 }
 
 function prod () {
+  if (webpackConfig.output) {
+    if (fs.existsSync(webpackConfig.output.path)) fs.removeSync(webpackConfig.output.path)
+  }
   return new Promise((resolve, reject) => {
     webpack(webpackConfig, (err, stats) => {
       if (err) {
