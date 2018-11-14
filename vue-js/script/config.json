@@ -3,5 +3,6 @@
   "devServerPort": 9090,
   "outputPath": "public",
   "contentBase": "public",
-  "publicPath": "/"
+  "publicPath": "/",
+  "open": false
 }

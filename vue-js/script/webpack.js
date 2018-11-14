@@ -32,7 +32,7 @@ function main () {
   const server = new DevServer(webpack(webpackConfig), devServerOptions)
 
   server.listen(config.devServerPort, config.devServerHost, () => {
-    require('opn')(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath || '/'}`)
+    if (config.open) require('opn')(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath || '/'}`)
   })
 }
 
