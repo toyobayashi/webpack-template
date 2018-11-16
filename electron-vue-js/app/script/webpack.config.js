@@ -9,6 +9,7 @@ const { mode, getPath, config } = require('./constant.js')
 
 const mainConfig = {
   mode,
+  context: getPath(),
   target: 'electron-main',
   entry: {
     main: [getPath('./src/main.js')]
@@ -23,6 +24,7 @@ const mainConfig = {
 
 let rendererConfig = {
   mode,
+  context: getPath(),
   target: 'electron-renderer',
   entry: {
     renderer: [getPath('./src/index.js')]

@@ -9,6 +9,7 @@ import { mode, getPath, config } from './constant'
 
 const webpackConfig: Configuration = {
   mode,
+  context: getPath(),
   entry: {
     main: [getPath('./src/index.ts')]
   },
