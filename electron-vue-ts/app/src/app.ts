@@ -3,10 +3,9 @@ import { Vue, Component } from 'vue-property-decorator'
 @Component
 export default class extends Vue {
   text: string = 'Vue Typescript'
-  mounted () {
-    this.$nextTick(() => {
-      console.log(this.electron)
-    })
+
+  test () {
+    this.text += '!!!'
   }
 }
 

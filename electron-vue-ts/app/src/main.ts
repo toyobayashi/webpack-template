@@ -5,14 +5,24 @@ import { join } from 'path'
 let mainWindow: BrowserWindow | null
 
 function createWindow () {
-  mainWindow = new BrowserWindow({
+  const browerWindowOptions = {
     width: 800,
-    height: 600
+    height: 600,
+    show: false
+  }
+
+  mainWindow = new BrowserWindow(browerWindowOptions)
+
+  mainWindow.on('ready-to-show', function () {
+    if (!mainWindow) return
+    mainWindow.show()
+    mainWindow.focus()
+    if (process.env.NODE_ENV !== 'production') mainWindow.webContents.openDevTools()
   })
 
   if (process.env.NODE_ENV !== 'production') {
-    mainWindow.loadURL('http://localhost:7080/')
-    mainWindow.webContents.openDevTools()
+    const config = require('../script/config.json')
+    mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
   } else {
     mainWindow.loadURL(format({
       pathname: join(__dirname, 'index.html'),

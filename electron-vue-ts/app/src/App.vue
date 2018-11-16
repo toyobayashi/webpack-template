@@ -1,7 +1,7 @@
 <template>
 <div class="root" id="root">
   <p>{{text}}</p>
-  <button @click="text = text + '!!!'">click</button>
+  <button @click="test">click</button>
 </div>
 </template>
 

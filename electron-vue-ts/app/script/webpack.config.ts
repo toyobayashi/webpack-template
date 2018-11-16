@@ -1,28 +1,26 @@
-import * as path from 'path'
-import { Configuration } from 'webpack'
+import { Configuration, HotModuleReplacementPlugin } from 'webpack'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
-import * as UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 import { VueLoaderPlugin } from 'vue-loader'
 import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+import * as webpackNodeExternals from 'webpack-node-externals'
+import { mode, getPath, config } from './constant'
 
-const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development'
+const TerserWebpackPlugin = require('terser-webpack-plugin')
 
-let mainConfig: Configuration = {
+export const mainConfig: Configuration = {
   mode,
+  context: getPath(),
   target: 'electron-main',
   entry: {
-    main: [path.join(__dirname, '../src/main.ts')]
+    main: [getPath('./src/main.ts')]
   },
   output: {
     filename: '[name].js',
-    path: path.join(__dirname, '../public')
+    path: getPath(config.outputPath)
   },
-  node: {
-    __dirname: false,
-    __filename: false
-  },
+  node: false,
   module: {
     rules: [
       {
@@ -32,25 +30,27 @@ let mainConfig: Configuration = {
       }
     ]
   },
+  externals: [webpackNodeExternals()],
   resolve: {
     extensions: ['.ts', '.js']
   }
 }
 
-let rendererConfig: Configuration = {
+export const rendererConfig: Configuration = {
   mode,
+  context: getPath(),
   target: 'electron-renderer',
   entry: {
-    renderer: [path.join(__dirname, '../src/index.ts')]
+    renderer: [getPath('./src/index.ts')]
   },
   output: {
     filename: '[name].js',
-    path: path.join(__dirname, '../public')
+    path: getPath(config.outputPath)
   },
-  node: {
-    __dirname: false,
-    __filename: false
-  },
+  node: false,
+  externals: [webpackNodeExternals({
+    whitelist: mode === 'production' ? [/vue/] : [/webpack/]
+  })],
   module: {
     rules: [
       {
@@ -85,23 +85,34 @@ let rendererConfig: Configuration = {
   plugins: [
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
-      inject: false,
-      template: path.join(__dirname, '../src/index.template.ts')
+      title: 'template-electron-vue-js',
+      template: getPath('./src/index.html'),
+      chunks: ['renderer', 'dll', 'common']
     })
-  ]
+  ],
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      name: 'common',
+      cacheGroups: {
+        dll: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'dll'
+        }
+      }
+    }
+  }
 }
 
 if (process.env.NODE_ENV === 'production') {
-  const uglifyJSPlugin = () => new UglifyJSPlugin({
+  const uglifyJS = () => new TerserWebpackPlugin({
     parallel: true,
     cache: true,
-    uglifyOptions: {
+    terserOptions: {
       ecma: 8,
       output: {
-        comments: false,
         beautify: false
-      },
-      warnings: false
+      }
     }
   })
 
@@ -112,19 +123,25 @@ if (process.env.NODE_ENV === 'production') {
     })
   ]
   rendererConfig.optimization = {
+    ...(rendererConfig.optimization || {}),
     minimizer: [
-      uglifyJSPlugin(),
+      uglifyJS(),
       new OptimizeCSSAssetsPlugin({})
     ]
   }
   mainConfig.optimization = {
-    minimizer: [uglifyJSPlugin()]
+    ...(mainConfig.optimization || {}),
+    minimizer: [uglifyJS()]
   }
 } else {
+  rendererConfig.devtool = mainConfig.devtool = 'eval-source-map'
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),
+    new HotModuleReplacementPlugin(),
     new ForkTsCheckerWebpackPlugin()
   ]
-}
 
-export default { mainConfig, rendererConfig }
+  if (config.publicPath) {
+    rendererConfig.output && (rendererConfig.output.publicPath = config.publicPath)
+  }
+}
