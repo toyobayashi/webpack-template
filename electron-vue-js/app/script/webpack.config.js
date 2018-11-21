@@ -74,7 +74,7 @@ let rendererConfig = {
   }
 }
 
-if (process.env.NODE_ENV === 'production') {
+if (mode === 'production') {
   const uglifyJS = () => new TerserWebpackPlugin({
     parallel: true,
     cache: true,

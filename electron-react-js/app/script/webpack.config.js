@@ -2,18 +2,40 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const TerserWebpackPlugin = require('terser-webpack-plugin')
+const webpackNodeExternals = require('webpack-node-externals')
 const { mode, getPath, config } = require('./constant.js')
 
-let webpackConfig = {
+const mainConfig = {
   mode,
+  context: getPath(),
+  target: 'electron-main',
   entry: {
-    main: ['@babel/polyfill', getPath('./src/index.jsx')]
+    main: [getPath('./src/main.js')]
   },
   output: {
     filename: '[name].js',
     path: getPath(config.outputPath)
   },
+  node: false,
+  externals: [webpackNodeExternals()]
+}
+
+let rendererConfig = {
+  mode,
+  context: getPath(),
+  target: 'electron-renderer',
+  entry: {
+    renderer: [getPath('./src/index.jsx')]
+  },
+  output: {
+    filename: '[name].js',
+    path: getPath(config.outputPath)
+  },
+  node: false,
+  externals: [webpackNodeExternals({
+    whitelist: mode === 'production' ? [/react/] : [/webpack/, /react-hot-loader/]
+  })],
   module: {
     rules: [
       {
@@ -24,12 +46,7 @@ let webpackConfig = {
             loader: 'babel-loader',
             options: {
               presets: [
-                '@babel/preset-react',
-                [
-                  '@babel/preset-env', {
-                    modules: false
-                  }
-                ]
+                '@babel/preset-react'
               ],
               plugins: mode !== 'production' ? ['react-hot-loader/babel'] : void 0
             }
@@ -39,7 +56,7 @@ let webpackConfig = {
       {
         test: /\.css$/,
         use: [
-          process.env.NODE_ENV === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
           'css-loader'
         ]
       }
@@ -47,9 +64,9 @@ let webpackConfig = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'template-react-js',
+      title: 'template-electron-react-js',
       template: getPath('./src/index.html'),
-      chunks: ['main', 'dll', 'common']
+      chunks: ['renderer', 'dll', 'common']
     })
   ],
   optimization: {
@@ -67,38 +84,44 @@ let webpackConfig = {
 }
 
 if (mode === 'production') {
-  const uglifyJS = () => new UglifyJSPlugin({
+  const uglifyJS = () => new TerserWebpackPlugin({
     parallel: true,
     cache: true,
-    uglifyOptions: {
+    terserOptions: {
+      ecma: 8,
       output: {
-        comments: false
+        beautify: false
       }
     }
   })
-  webpackConfig.plugins = [
-    ...(webpackConfig.plugins || []),
+
+  rendererConfig.plugins = [
+    ...(rendererConfig.plugins || []),
     new MiniCssExtractPlugin({
       filename: '[name].css'
     })
   ]
-  webpackConfig.optimization = {
-    ...(webpackConfig.optimization || {}),
+  rendererConfig.optimization = {
+    ...(rendererConfig.optimization || {}),
     minimizer: [
       uglifyJS(),
       new OptimizeCSSAssetsPlugin({})
     ]
   }
+  mainConfig.optimization = {
+    ...(mainConfig.optimization || {}),
+    minimizer: [uglifyJS()]
+  }
 } else {
-  webpackConfig.devtool = 'eval-source-map'
-  webpackConfig.plugins = [
-    ...(webpackConfig.plugins || []),
+  rendererConfig.devtool = mainConfig.devtool = 'eval-source-map'
+  rendererConfig.plugins = [
+    ...(rendererConfig.plugins || []),
     new webpack.HotModuleReplacementPlugin()
   ]
 
   if (config.publicPath) {
-    webpackConfig.output && (webpackConfig.output.publicPath = config.publicPath)
+    rendererConfig.output && (rendererConfig.output.publicPath = config.publicPath)
   }
 }
 
-module.exports = webpackConfig
+module.exports = { mainConfig, rendererConfig }

@@ -1,8 +1,8 @@
 const config = require('./config.json')
 if (!config.devServerHost) config.devServerHost = 'localhost'
-if (!config.devServerPort) config.devServerPort = 8090
+if (!config.devServerPort) config.devServerPort = 6090
 if (!config.outputPath) config.outputPath = 'public'
-if (!config.contentBase) config.contentBase = 'public'
+if (!config.contentBase) config.contentBase = '..'
 
 module.exports = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',

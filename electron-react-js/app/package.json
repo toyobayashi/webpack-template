@@ -1,25 +1,26 @@
 {
-  "name": "template-react-js",
+  "name": "template-electron-react-js",
   "version": "1.0.0",
-  "description": "template-react-js",
-  "main": "./src/index.jsx",
+  "description": "template-electron-react-js",
+  "main": "./public/main.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development node ./script/webpack.js",
-    "prod": "cross-env NODE_ENV=production node ./script/webpack.js"
+    "prod": "cross-env NODE_ENV=production node ./script/webpack.js",
+    "start": "electron . --enable-logging"
   },
   "keywords": [
-    "react"
+    "react",
+    "electron"
   ],
   "author": "toyobayashi",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.1.5",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.1.5",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.4",
     "cross-env": "^5.2.0",
     "css-loader": "^1.0.1",
+    "electron": "3.0.10",
     "eslint": "^5.9.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-html": "^5.0.0",
@@ -36,8 +37,9 @@
     "react-dom": "16.6.3",
     "react-hot-loader": "^4.3.12",
     "style-loader": "^0.23.1",
-    "uglifyjs-webpack-plugin": "^2.0.1",
+    "terser-webpack-plugin": "^1.1.0",
     "webpack": "^4.25.1",
-    "webpack-dev-server": "^3.1.10"
+    "webpack-dev-server": "^3.1.10",
+    "webpack-node-externals": "^1.7.2"
   }
 }
