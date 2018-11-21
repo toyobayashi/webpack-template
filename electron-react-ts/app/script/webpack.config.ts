@@ -2,7 +2,6 @@ import { Configuration, HotModuleReplacementPlugin } from 'webpack'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
-import { VueLoaderPlugin } from 'vue-loader'
 import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import * as webpackNodeExternals from 'webpack-node-externals'
 import { mode, getPath, config } from './constant'
@@ -41,7 +40,7 @@ export const rendererConfig: Configuration = {
   context: getPath(),
   target: 'electron-renderer',
   entry: {
-    renderer: [getPath('./src/index.ts')]
+    renderer: mode === 'production' ? [getPath('./src/index.tsx')] : ['react-hot-loader/patch', getPath('./src/index-dev.tsx')]
   },
   output: {
     filename: '[name].js',
@@ -49,23 +48,26 @@ export const rendererConfig: Configuration = {
   },
   node: false,
   externals: [webpackNodeExternals({
-    whitelist: mode === 'production' ? [/vue/] : [/webpack/]
+    whitelist: mode === 'production' ? [/react/] : [/webpack/, /react-hot-loader/]
   })],
   module: {
     rules: [
       {
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      },
-      {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: [
+        use: mode !== 'production' ? [
+          'react-hot-loader/webpack',
           {
             loader: 'ts-loader',
             options: {
-              appendTsSuffixTo: [/\.vue$/],
-              transpileOnly: mode !== 'production'
+              transpileOnly: true
+            }
+          }
+        ] : [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: false
             }
           }
         ]
@@ -73,19 +75,18 @@ export const rendererConfig: Configuration = {
       {
         test: /\.css$/,
         use: [
-          mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+          mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
           'css-loader'
         ]
       }
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js', '.vue', '.css']
+    extensions: ['.ts', '.tsx', '.js', '.css']
   },
   plugins: [
-    new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
-      title: 'template-electron-vue-js',
+      title: 'template-electron-react-ts',
       template: getPath('./src/index.html'),
       chunks: ['renderer', 'dll', 'common']
     })
