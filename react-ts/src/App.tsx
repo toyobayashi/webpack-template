@@ -36,4 +36,4 @@ class App extends React.Component<{}, { text: string }> {
   console.log(ms)
 })()
 
-export default process.env.NODE_ENV !== 'production' ? require('react-hot-loader').hot(module)(App) : App
+export default App

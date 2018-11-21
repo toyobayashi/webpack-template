@@ -1,34 +1,38 @@
-import path from 'path'
-import { Configuration } from 'webpack'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
-import MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
-import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
+import { Configuration, HotModuleReplacementPlugin } from 'webpack'
+import * as HtmlWebpackPlugin from 'html-webpack-plugin'
+import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
+import * as UglifyJSPlugin from 'uglifyjs-webpack-plugin'
+import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+import { mode, getPath, config } from './constant'
 
-let webpackConfig: Configuration = {
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  entry: [path.join(__dirname, '../src/index.tsx')],
+const webpackConfig: Configuration = {
+  mode,
+  entry: {
+    main: mode === 'production' ? [getPath('./src/index.tsx')] : ['react-hot-loader/patch', getPath('./src/index-dev.tsx')]
+  },
   output: {
-    filename: 'main.js',
-    path: path.join(__dirname, '../public')
+    filename: '[name].js',
+    path: getPath(config.outputPath)
   },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              // babelrc: false,
-              plugins: ['react-hot-loader/babel']
-            }
-          },
+        use: mode !== 'production' ? [
+          'react-hot-loader/webpack',
           {
             loader: 'ts-loader',
             options: {
-              configFile: process.env.NODE_ENV === 'production' ? 'tsconfig.json' : 'tsconfig.dev.json'
+              transpileOnly: true
+            }
+          }
+        ] : [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: false
             }
           }
         ]
@@ -36,46 +40,69 @@ let webpackConfig: Configuration = {
       {
         test: /\.css$/,
         use: [
-          process.env.NODE_ENV === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
           'css-loader'
         ]
       }
     ]
   },
   resolve: {
-    extensions: ['.css', '.ts', '.tsx', '.js']
+    extensions: ['.ts', '.tsx', '.js', '.css']
   },
   plugins: [
     new HtmlWebpackPlugin({
       title: 'template-react-ts',
-      template: path.join(__dirname, '../src/index.html')
+      template: getPath('./src/index.html'),
+      chunks: ['main', 'dll', 'common']
     })
-  ]
+  ],
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      name: 'common',
+      cacheGroups: {
+        dll: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'dll'
+        }
+      }
+    }
+  }
 }
 
-if (process.env.NODE_ENV === 'production') {
+if (mode === 'production') {
+  const uglifyJS = () => new UglifyJSPlugin({
+    parallel: true,
+    cache: true,
+    uglifyOptions: {
+      output: {
+        comments: false
+      }
+    }
+  })
   webpackConfig.plugins = [
     ...(webpackConfig.plugins || []),
     new MiniCssExtractPlugin({
-      filename: 'main.css'
+      filename: '[name].css'
     })
   ]
   webpackConfig.optimization = {
+    ...(webpackConfig.optimization || {}),
     minimizer: [
-      new UglifyJSPlugin({
-        parallel: true,
-        cache: true,
-        uglifyOptions: {
-          ecma: 5,
-          output: {
-            comments: false,
-            beautify: false
-          },
-          warnings: false
-        }
-      }),
+      uglifyJS(),
       new OptimizeCSSAssetsPlugin({})
     ]
+  }
+} else {
+  webpackConfig.devtool = 'eval-source-map'
+  webpackConfig.plugins = [
+    ...(webpackConfig.plugins || []),
+    new HotModuleReplacementPlugin(),
+    new ForkTsCheckerWebpackPlugin()
+  ]
+
+  if (config.publicPath) {
+    webpackConfig.output && (webpackConfig.output.publicPath = config.publicPath)
   }
 }
 
