@@ -4,8 +4,9 @@ class App extends React.Component {
   render () {
     return (
       <div className={'root'}>
-        <p>{this.state.text}</p>
-        <button onClick={this.click}>click</button>
+        <h1 className="title">React JavaScript</h1>
+        <div>React: {React.version}</div>
+        <div className="content" onClick={this.test}>Component State: {this.state.count}</div>
       </div>
     )
   }
@@ -13,15 +14,15 @@ class App extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      text: 'React JavaScript'
+      count: 0
     }
-    this.click = this.click.bind(this)
+    this.test = this.test.bind(this)
   }
 
-  click () {
+  test () {
     this.setState((prevState) => {
       return {
-        text: prevState.text + '!!!'
+        count: prevState.count + 1
       }
     })
   }
