@@ -1,15 +1,18 @@
-const path = require('path')
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const { mode, getPath, config } = require('./constant.js')
 
 let webpackConfig = {
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  entry: ['babel-polyfill', path.join(__dirname, '../src/index.jsx')],
+  mode,
+  entry: {
+    main: ['@babel/polyfill', getPath('./src/index.jsx')]
+  },
   output: {
-    filename: 'main.js',
-    path: path.join(__dirname, '../public')
+    filename: '[name].js',
+    path: getPath(config.outputPath)
   },
   module: {
     rules: [
@@ -21,14 +24,14 @@ let webpackConfig = {
             loader: 'babel-loader',
             options: {
               presets: [
-                'react',
+                '@babel/preset-react',
                 [
-                  'env', {
+                  '@babel/preset-env', {
                     modules: false
                   }
                 ]
               ],
-              plugins: process.env.NODE_ENV !== 'production' ? ['react-hot-loader/babel'] : void 0
+              plugins: mode !== 'production' ? ['react-hot-loader/babel'] : void 0
             }
           }
         ]
@@ -45,34 +48,56 @@ let webpackConfig = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'template-react-js',
-      template: path.join(__dirname, '../src/index.html')
+      template: getPath('./src/index.html'),
+      chunks: ['main', 'dll', 'common']
     })
-  ]
+  ],
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      name: 'common',
+      cacheGroups: {
+        dll: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'dll'
+        }
+      }
+    }
+  }
 }
 
 if (process.env.NODE_ENV === 'production') {
+  const uglifyJS = () => new UglifyJSPlugin({
+    parallel: true,
+    cache: true,
+    uglifyOptions: {
+      output: {
+        comments: false
+      }
+    }
+  })
   webpackConfig.plugins = [
     ...(webpackConfig.plugins || []),
     new MiniCssExtractPlugin({
-      filename: 'main.css'
+      filename: '[name].css'
     })
   ]
   webpackConfig.optimization = {
+    ...(webpackConfig.optimization || {}),
     minimizer: [
-      new UglifyJSPlugin({
-        parallel: true,
-        cache: true,
-        uglifyOptions: {
-          ecma: 5,
-          output: {
-            comments: false,
-            beautify: false
-          },
-          warnings: false
-        }
-      }),
+      uglifyJS(),
       new OptimizeCSSAssetsPlugin({})
     ]
+  }
+} else {
+  webpackConfig.devtool = 'eval-source-map'
+  webpackConfig.plugins = [
+    ...(webpackConfig.plugins || []),
+    new webpack.HotModuleReplacementPlugin()
+  ]
+
+  if (config.publicPath) {
+    webpackConfig.output && (webpackConfig.output.publicPath = config.publicPath)
   }
 }
 
