@@ -1,12 +1,16 @@
+import Vue from 'vue'
+
 export default {
   data () {
     return {
-      text: 'Vue JavaScript'
+      version: Vue.version,
+      electronVersion: process.versions.electron,
+      count: 0
     }
   },
   methods: {
     test () {
-      this.text += '!!!'
+      this.count++
     }
   }
 }
