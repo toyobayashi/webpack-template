@@ -4,7 +4,7 @@ class App extends React.Component {
   render () {
     return (
       <div className={'root'}>
-        <h1 className="title">React JavaScript</h1>
+        <h1 className="title">Electron React JavaScript</h1>
         <div>React: {React.version}</div>
         <div>Electron: {process.versions.electron}</div>
         <div className="content" onClick={this.test}>Component State: {this.state.count}</div>

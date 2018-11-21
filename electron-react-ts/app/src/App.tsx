@@ -1,11 +1,13 @@
 import * as React from 'react'
 
-class App extends React.Component<{}, { text: string }> {
+class App extends React.Component<{}, { count: number }> {
   render () {
     return (
       <div className={'root'}>
-        <p>{this.state.text}</p>
-        <button onClick={this.click}>click</button>
+        <h1 className='title'>Electron React TypeScript</h1>
+        <div>React: {React.version}</div>
+        <div>Electron: {process.versions.electron}</div>
+        <div className='content' onClick={this.test}>Component State: {this.state.count}</div>
       </div>
     )
   }
@@ -13,15 +15,15 @@ class App extends React.Component<{}, { text: string }> {
   constructor (props: {}) {
     super(props)
     this.state = {
-      text: 'React TypeScript'
+      count: 0
     }
-    this.click = this.click.bind(this)
+    this.test = this.test.bind(this)
   }
 
-  click () {
+  test () {
     this.setState((prevState) => {
       return {
-        text: prevState.text + '!!!'
+        count: prevState.count + 1
       }
     })
   }
