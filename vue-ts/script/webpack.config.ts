@@ -31,7 +31,7 @@ const webpackConfig: Configuration = {
             loader: 'ts-loader',
             options: {
               appendTsSuffixTo: [/\.vue$/],
-              transpileOnly: process.env.NODE_ENV !== 'production'
+              transpileOnly: mode !== 'production'
             }
           }
         ]
@@ -39,7 +39,7 @@ const webpackConfig: Configuration = {
       {
         test: /\.css$/,
         use: [
-          process.env.NODE_ENV === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+          mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
           'css-loader'
         ]
       }
@@ -70,7 +70,7 @@ const webpackConfig: Configuration = {
   }
 }
 
-if (process.env.NODE_ENV === 'production') {
+if (mode === 'production') {
   const uglifyJS = () => new UglifyJSPlugin({
     parallel: true,
     cache: true,
