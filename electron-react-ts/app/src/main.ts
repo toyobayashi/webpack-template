@@ -8,7 +8,10 @@ function createWindow () {
   const browerWindowOptions = {
     width: 800,
     height: 600,
-    show: false
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
   }
 
   mainWindow = new BrowserWindow(browerWindowOptions)
@@ -20,20 +23,21 @@ function createWindow () {
     if (process.env.NODE_ENV !== 'production') mainWindow.webContents.openDevTools()
   })
 
+  mainWindow.on('closed', function () {
+    mainWindow = null
+  })
+
   if (process.env.NODE_ENV !== 'production') {
-    const config = require('../script/config.json')
+    const config = require('../script/config').default
     mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
   } else {
+    mainWindow.setMenu(null)
     mainWindow.loadURL(format({
       pathname: join(__dirname, 'index.html'),
       protocol: 'file:',
       slashes: true
     }))
   }
-
-  mainWindow.on('closed', function () {
-    mainWindow = null
-  })
 }
 
 app.on('ready', createWindow)

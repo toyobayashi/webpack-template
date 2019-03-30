@@ -1,6 +1,12 @@
 import * as React from 'react'
 
-class App extends React.Component<{}, { count: number }> {
+interface IProps {}
+
+interface IStates {
+  count: number
+}
+
+class App extends React.Component<IProps, IStates> {
   render () {
     return (
       <div className={'root'}>
@@ -8,6 +14,7 @@ class App extends React.Component<{}, { count: number }> {
         <div>React: {React.version}</div>
         <div>Electron: {process.versions.electron}</div>
         <div className='content' onClick={this.test}>Component State: {this.state.count}</div>
+        <button onClick={this.toggleDevtools}>devtools</button>
       </div>
     )
   }
@@ -26,6 +33,15 @@ class App extends React.Component<{}, { count: number }> {
         count: prevState.count + 1
       }
     })
+  }
+
+  toggleDevtools () {
+    const webContents = require('electron').remote.webContents.getFocusedWebContents()
+    if (webContents.isDevToolsOpened()) {
+      webContents.closeDevTools()
+    } else {
+      webContents.openDevTools()
+    }
   }
 }
 

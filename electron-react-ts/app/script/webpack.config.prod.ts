@@ -1,15 +1,26 @@
-import { Configuration, HotModuleReplacementPlugin } from 'webpack'
+import { Configuration } from 'webpack'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
-import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import * as webpackNodeExternals from 'webpack-node-externals'
-import { mode, getPath, config } from './constant'
+import config from './config'
+import getPath from './get-path'
 
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 
+const terser = () => new TerserWebpackPlugin({
+  parallel: true,
+  cache: true,
+  terserOptions: {
+    ecma: 8,
+    output: {
+      beautify: false
+    }
+  }
+})
+
 export const mainConfig: Configuration = {
-  mode,
+  mode: 'production',
   context: getPath(),
   target: 'electron-main',
   entry: {
@@ -17,7 +28,7 @@ export const mainConfig: Configuration = {
   },
   output: {
     filename: '[name].js',
-    path: getPath(config.outputPath)
+    path: config.outputPath || getPath('out')
   },
   node: false,
   module: {
@@ -32,38 +43,33 @@ export const mainConfig: Configuration = {
   externals: [webpackNodeExternals()],
   resolve: {
     extensions: ['.ts', '.js']
+  },
+  optimization: {
+    minimizer: [terser()]
   }
 }
 
 export const rendererConfig: Configuration = {
-  mode,
+  mode: 'production',
   context: getPath(),
   target: 'electron-renderer',
   entry: {
-    renderer: mode === 'production' ? [getPath('./src/index.tsx')] : ['react-hot-loader/patch', getPath('./src/index-dev.tsx')]
+    renderer: [getPath('./src/index.tsx')]
   },
   output: {
     filename: '[name].js',
-    path: getPath(config.outputPath)
+    path: config.outputPath || getPath('out')
   },
   node: false,
   externals: [webpackNodeExternals({
-    whitelist: mode === 'production' ? [/react/] : [/webpack/, /react-hot-loader/]
+    whitelist: [/react/]
   })],
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: mode !== 'production' ? [
-          'react-hot-loader/webpack',
-          {
-            loader: 'ts-loader',
-            options: {
-              transpileOnly: true
-            }
-          }
-        ] : [
+        use: [
           {
             loader: 'ts-loader',
             options: {
@@ -75,7 +81,7 @@ export const rendererConfig: Configuration = {
       {
         test: /\.css$/,
         use: [
-          mode === 'production' ? MiniCssExtractPlugin.loader : 'style-loader',
+          MiniCssExtractPlugin.loader,
           'css-loader'
         ]
       }
@@ -89,6 +95,9 @@ export const rendererConfig: Configuration = {
       title: 'template-electron-react-ts',
       template: getPath('./src/index.html'),
       chunks: ['renderer', 'dll', 'common']
+    }),
+    new MiniCssExtractPlugin({
+      filename: '[name].css'
     })
   ],
   optimization: {
@@ -101,48 +110,10 @@ export const rendererConfig: Configuration = {
           name: 'dll'
         }
       }
-    }
-  }
-}
-
-if (mode === 'production') {
-  const uglifyJS = () => new TerserWebpackPlugin({
-    parallel: true,
-    cache: true,
-    terserOptions: {
-      ecma: 8,
-      output: {
-        beautify: false
-      }
-    }
-  })
-
-  rendererConfig.plugins = [
-    ...(rendererConfig.plugins || []),
-    new MiniCssExtractPlugin({
-      filename: '[name].css'
-    })
-  ]
-  rendererConfig.optimization = {
-    ...(rendererConfig.optimization || {}),
+    },
     minimizer: [
-      uglifyJS(),
+      terser(),
       new OptimizeCSSAssetsPlugin({})
     ]
-  }
-  mainConfig.optimization = {
-    ...(mainConfig.optimization || {}),
-    minimizer: [uglifyJS()]
-  }
-} else {
-  rendererConfig.devtool = mainConfig.devtool = 'eval-source-map'
-  rendererConfig.plugins = [
-    ...(rendererConfig.plugins || []),
-    new HotModuleReplacementPlugin(),
-    new ForkTsCheckerWebpackPlugin()
-  ]
-
-  if (config.publicPath) {
-    rendererConfig.output && (rendererConfig.output.publicPath = config.publicPath)
   }
 }
