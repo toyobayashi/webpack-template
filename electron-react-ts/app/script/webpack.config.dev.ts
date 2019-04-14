@@ -78,7 +78,7 @@ export const rendererConfig: Configuration = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'template-electron-react-ts',
+      title: require(getPath('package.json')).name,
       template: getPath('./src/index.html'),
       chunks: ['renderer', 'dll', 'common']
     }),

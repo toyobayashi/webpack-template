@@ -61,9 +61,7 @@ export const rendererConfig: Configuration = {
     path: config.outputPath || getPath('out')
   },
   node: false,
-  externals: [webpackNodeExternals({
-    whitelist: [/react/]
-  })],
+  externals: [webpackNodeExternals()],
   module: {
     rules: [
       {
@@ -92,7 +90,7 @@ export const rendererConfig: Configuration = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'template-electron-react-ts',
+      title: require(getPath('package.json')).name,
       template: getPath('./src/index.html'),
       chunks: ['renderer', 'dll', 'common']
     }),
