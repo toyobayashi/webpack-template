@@ -42,7 +42,7 @@ export const mainConfig: Configuration = {
   },
   plugins: [
     new DefinePlugin({
-      'process.isLinux': process.platform === 'linux'
+      'process.isLinux': JSON.stringify(process.platform === 'linux')
     })
   ]
 }
