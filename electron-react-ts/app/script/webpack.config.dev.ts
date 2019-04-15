@@ -1,4 +1,4 @@
-import { Configuration, HotModuleReplacementPlugin } from 'webpack'
+import { Configuration, HotModuleReplacementPlugin, DefinePlugin } from 'webpack'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import * as webpackNodeExternals from 'webpack-node-externals'
@@ -24,13 +24,27 @@ export const mainConfig: Configuration = {
         test: /\.ts$/,
         exclude: /node_modules/,
         loader: 'ts-loader'
+      },
+      {
+        test: /\.(jpg|png|ico|icns)$/,
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: `./${config.iconOutDir}/[name].[ext]`
+          }
+        }]
       }
     ]
   },
   externals: [webpackNodeExternals()],
   resolve: {
     extensions: ['.ts', '.js']
-  }
+  },
+  plugins: [
+    new DefinePlugin({
+      'process.isLinux': process.platform === 'linux'
+    })
+  ]
 }
 
 export const rendererConfig: Configuration = {

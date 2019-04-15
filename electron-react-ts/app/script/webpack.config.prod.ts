@@ -1,4 +1,4 @@
-import { Configuration } from 'webpack'
+import { Configuration, DefinePlugin } from 'webpack'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
@@ -37,6 +37,15 @@ export const mainConfig: Configuration = {
         test: /\.ts$/,
         exclude: /node_modules/,
         loader: 'ts-loader'
+      },
+      {
+        test: /\.(jpg|png|ico|icns)$/,
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: `./${config.iconOutDir}/[name].[ext]`
+          }
+        }]
       }
     ]
   },
@@ -44,6 +53,11 @@ export const mainConfig: Configuration = {
   resolve: {
     extensions: ['.ts', '.js']
   },
+  plugins: [
+    new DefinePlugin({
+      'process.isLinux': process.platform === 'linux'
+    })
+  ],
   optimization: {
     minimizer: [terser()]
   }
@@ -61,7 +75,6 @@ export const rendererConfig: Configuration = {
     path: config.outputPath || getPath('out')
   },
   node: false,
-  externals: [webpackNodeExternals()],
   module: {
     rules: [
       {

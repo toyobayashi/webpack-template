@@ -7,6 +7,10 @@ export default {
   contentBase: getPath('..'),
   publicPath: '/app/out/',
 
+  distPath: getPath('..', 'dist'),
+  iconOutDir: 'img',
+  iconSrcDir: getPath('res'),
+
   statsOptions: {
     colors: true,
     children: false,

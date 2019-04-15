@@ -1,16 +1,40 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, BrowserWindowConstructorOptions, nativeImage } from 'electron'
 import { format } from 'url'
 import { join } from 'path'
+import { existsSync } from 'fs'
 
 let mainWindow: BrowserWindow | null
 
 function createWindow () {
-  const browerWindowOptions = {
+  const browerWindowOptions: BrowserWindowConstructorOptions = {
     width: 800,
     height: 600,
     show: false,
     webPreferences: {
       nodeIntegration: true
+    }
+  }
+
+  if ((process as any).isLinux) {
+    let linuxIcon: string
+    try {
+      linuxIcon = require(`../res/1024x1024.png`)
+    } catch (_) {
+      linuxIcon = ''
+    }
+    if (linuxIcon) {
+      browerWindowOptions.icon = nativeImage.createFromPath(join(__dirname, linuxIcon))
+    }
+  } else {
+    if (process.env.NODE_ENV !== 'production') {
+      let icon: string = ''
+
+      const iconPath = join(__dirname, `../res/app.${process.platform === 'win32' ? 'ico' : 'icns'}`)
+      if (existsSync(iconPath)) icon = iconPath
+
+      if (icon) {
+        browerWindowOptions.icon = nativeImage.createFromPath(icon)
+      }
     }
   }
 
