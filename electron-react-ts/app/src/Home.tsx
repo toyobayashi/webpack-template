@@ -12,7 +12,7 @@ interface Props {
 
 interface States {}
 
-class Home extends React.Component<Props & {}, States> {
+class Home extends React.Component<Props, States> {
   render () {
     return (
       <div className={'root'}>
@@ -26,7 +26,7 @@ class Home extends React.Component<Props & {}, States> {
     )
   }
 
-  constructor (props: Props & {}) {
+  constructor (props: Props) {
     super(props)
   }
 

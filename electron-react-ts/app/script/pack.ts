@@ -93,7 +93,7 @@ Priority: optional
 Architecture: ${arch === 'x64' ? 'amd64' : 'i386'}
 Depends: kde-cli-tools | kde-runtime | trash-cli | libglib2.0-bin | gvfs-bin, libgconf-2-4, libgtk-3-0 (>= 3.10.0), libnotify4, libnss3 (>= 2:3.26), libxtst6, xdg-utils
 Installed-Size: ${getDirectorySizeSync(appPath)}
-Maintainer: ${productionPackage.author} <lifenglin314@outlook.com>
+Maintainer: ${productionPackage.author}
 Homepage: https://github.com/${productionPackage.author}/${pkg.name}
 Description: ${pkg.description}
 `)
