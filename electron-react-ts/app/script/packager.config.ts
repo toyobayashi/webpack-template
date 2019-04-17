@@ -28,13 +28,18 @@ export const productionPackage: ProductionPackage = {
   version: pkg.version,
   main: pkg.main,
   author: typeof pkg.author === 'object' ? (pkg.author as any).name as string : pkg.author,
-  license: pkg.license,
-  _commit: execSync('git rev-parse HEAD').toString().replace(/[\r\n]/g, ''),
-  _commitDate: new Date((execSync('git log -1').toString().match(/Date:\s*(.*?)\n/) as any)[1]).toISOString()
+  license: pkg.license
 }
 
 if ((pkg as any).dependencies) {
   productionPackage.dependencies = (pkg as any).dependencies
+}
+
+try {
+  productionPackage._commit = execSync('git rev-parse HEAD').toString().replace(/[\r\n]/g, '')
+  productionPackage._commitDate = new Date((execSync('git log -1').toString().match(/Date:\s*(.*?)\n/) as any)[1]).toISOString()
+} catch (err) {
+  console.log(require('chalk').yellowBright('\n  [WARN] Not a git repository.\n'))
 }
 
 const packagerOptions: Options = {
