@@ -2,7 +2,6 @@ const webpack = require('webpack')
 const { mainConfig, rendererConfig } = require('./webpack.config.js')
 const { config, getPath } = require('./constant.js')
 const DevServer = require('webpack-dev-server')
-const fs = require('fs-extra')
 
 const statsOptions = {
   colors: true,
@@ -17,9 +16,6 @@ if (require.main === module) {
 
 function main () {
   if (process.env.NODE_ENV === 'production') return prod()
-  if (rendererConfig.output) {
-    if (fs.existsSync(rendererConfig.output.path)) fs.removeSync(rendererConfig.output.path)
-  }
   const mainCompiler = webpack(mainConfig)
   mainCompiler.watch({
     aggregateTimeout: 200,
@@ -44,9 +40,6 @@ function main () {
 }
 
 function prod () {
-  if (rendererConfig.output) {
-    if (fs.existsSync(rendererConfig.output.path)) fs.removeSync(rendererConfig.output.path)
-  }
   const webpackPromise = (option) => new Promise((resolve, reject) => {
     webpack(option, (err, stats) => {
       if (err) {

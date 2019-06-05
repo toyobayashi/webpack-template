@@ -1,39 +1,25 @@
 import * as React from 'react'
+import { Route } from 'react-router-dom'
+import Home from './Home'
+import Package from './Package'
 
-class App extends React.Component<{}, { text: string }> {
+interface Props {}
+
+interface States {}
+
+class App extends React.Component<Props, States> {
   render () {
     return (
-      <div className={'root'}>
-        <p>{this.state.text}</p>
-        <button onClick={this.click}>click</button>
+      <div>
+        <Route exact path='/' component={Home} />
+        <Route exact path='/package' component={Package} />
       </div>
     )
   }
 
-  constructor (props: {}) {
+  constructor (props: Props) {
     super(props)
-    this.state = {
-      text: 'React TypeScript'
-    }
-    this.click = this.click.bind(this)
-  }
-
-  click () {
-    this.setState((prevState) => {
-      return {
-        text: prevState.text + '!!!'
-      }
-    })
   }
 }
-
-(async function () {
-  const ms = await (ms => new Promise(resolve => {
-    setTimeout(() => {
-      resolve(ms)
-    }, ms)
-  }))(1000)
-  console.log(ms)
-})()
 
 export default App

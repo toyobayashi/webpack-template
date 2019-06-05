@@ -17,12 +17,14 @@ if (require.main === module) {
 
 function main () {
   if (process.env.NODE_ENV === 'production') {
-    prod()
+    prod().catch(err => {
+      console.log(err)
+    })
     return
   }
-  if (rendererConfig.output && typeof rendererConfig.output.path === 'string') {
-    if (fs.existsSync(rendererConfig.output.path)) fs.removeSync(rendererConfig.output.path)
-  }
+  // if (rendererConfig.output && typeof rendererConfig.output.path === 'string') {
+  //   if (fs.existsSync(rendererConfig.output.path)) fs.removeSync(rendererConfig.output.path)
+  // }
   const mainCompiler = webpack(mainConfig)
   mainCompiler.watch({
     aggregateTimeout: 200,

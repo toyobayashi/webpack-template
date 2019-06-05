@@ -2,13 +2,18 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "experimentalDecorators": true,
-    "target": "es5",
-    "lib": [
-      "es2015",
-      "dom",
-    ],
-    "module": "es6",
-    "sourceMap": true
+    "target": "es2017",
+    "module": "esnext",
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/renderer/*"
+      ],
+      "~/*": [
+        "src/main/*"
+      ],
+    },
   },
   "include": [
     "./src/**/*"
