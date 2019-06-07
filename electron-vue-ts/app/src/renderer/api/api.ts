@@ -1,4 +1,4 @@
-import { importClass } from 'electron-class-rpc/renderer'
+const { importClass } = window.electronClassRpc
 
 const ApiClass = importClass<typeof CApiClass>('ApiClass')
 

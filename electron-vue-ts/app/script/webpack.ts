@@ -1,8 +1,8 @@
 import * as webpack from 'webpack'
-import { mainConfig, rendererConfig } from './webpack.config'
+import { mainConfig, rendererConfig, preloadConfig } from './webpack.config'
 import { config, getPath } from './constant'
 import * as DevServer from 'webpack-dev-server'
-import * as fs from 'fs-extra'
+// import * as fs from 'fs-extra'
 
 const statsOptions = {
   colors: true,
@@ -31,6 +31,12 @@ function main () {
     poll: undefined
   }, (err, stats) => console.log(err || (stats.toString(statsOptions) + '\n')))
 
+  const preloadCompiler = webpack(preloadConfig)
+  preloadCompiler.watch({
+    aggregateTimeout: 200,
+    poll: undefined
+  }, (err, stats) => console.log(err || (stats.toString(statsOptions) + '\n')))
+
   const devServerOptions: DevServer.Configuration = {
     stats: statsOptions,
     hot: true,
@@ -49,9 +55,9 @@ function main () {
 }
 
 export default function prod () {
-  if (rendererConfig.output && typeof rendererConfig.output.path === 'string') {
-    if (fs.existsSync(rendererConfig.output.path)) fs.removeSync(rendererConfig.output.path)
-  }
+  // if (rendererConfig.output && typeof rendererConfig.output.path === 'string') {
+  //   if (fs.existsSync(rendererConfig.output.path)) fs.removeSync(rendererConfig.output.path)
+  // }
   const webpackPromise = (option: webpack.Configuration) => new Promise((resolve, reject) => {
     webpack(option, (err, stats) => {
       if (err) {
@@ -65,6 +71,7 @@ export default function prod () {
 
   return Promise.all([
     webpackPromise(mainConfig),
+    webpackPromise(preloadConfig),
     webpackPromise(rendererConfig)
   ])
 }

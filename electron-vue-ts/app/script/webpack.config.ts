@@ -56,10 +56,40 @@ export const mainConfig: Configuration = {
   ]
 }
 
+export const preloadConfig: Configuration = {
+  mode,
+  context: getPath(),
+  target: 'electron-preload' as any,
+  entry: {
+    preload: [getPath('./src/renderer/preload.ts')]
+  },
+  output: {
+    filename: '[name].js',
+    path: getPath(config.outputPath)
+  },
+  node: false,
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: 'ts-loader'
+      }
+    ]
+  },
+  resolve: {
+    alias: {
+      '@': getPath('src', 'renderer'),
+      '~': getPath('src', 'main')
+    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
+  }
+}
+
 export const rendererConfig: Configuration = {
   mode,
   context: getPath(),
-  target: 'electron-renderer',
+  target: 'web',
   entry: {
     renderer: [getPath('./src/renderer/renderer.ts')]
   },
@@ -68,7 +98,7 @@ export const rendererConfig: Configuration = {
     path: getPath(config.outputPath),
     chunkFilename: '[name]-[hash:8].js'
   },
-  node: false,
+  // node: false,
   // externals: [webpackNodeExternals({
   //   whitelist: mode === 'production' ? [/vue/] : [/webpack/]
   // })],
@@ -155,6 +185,10 @@ if (mode === 'production') {
     ]
   }
   mainConfig.optimization = {
+    ...(mainConfig.optimization || {}),
+    minimizer: [terser()]
+  }
+  preloadConfig.optimization = {
     ...(mainConfig.optimization || {}),
     minimizer: [terser()]
   }

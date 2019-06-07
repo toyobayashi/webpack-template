@@ -12,7 +12,8 @@ function createWindow () {
     height: 600,
     show: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: false,
+      preload: join(__dirname, 'preload.js')
     }
   }
 
@@ -54,18 +55,29 @@ function createWindow () {
 
   if (process.env.NODE_ENV !== 'production') {
     const config = require('../../script/config').default
-    mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
+    const res = mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
+    // tslint:disable-next-line: strict-type-predicates
+    if (typeof res.then === 'function' && typeof res.catch === 'function') {
+      res.catch(err => {
+        console.log(err)
+      })
+    }
   } else {
     mainWindow.setMenu(null)
-    mainWindow.loadURL(format({
+    const res = mainWindow.loadURL(format({
       pathname: join(__dirname, 'index.html'),
       protocol: 'file:',
       slashes: true
     }))
+
+    // tslint:disable-next-line: strict-type-predicates
+    if (typeof res.then === 'function' && typeof res.catch === 'function') {
+      res.catch(err => {
+        console.log(err)
+      })
+    }
   }
 }
-
-app.on('ready', main)
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
@@ -78,6 +90,9 @@ app.on('activate', function () {
     createWindow()
   }
 })
+
+// tslint:disable-next-line: strict-type-predicates
+typeof app.whenReady === 'function' ? app.whenReady().then(main) : app.on('ready', main)
 
 function main () {
   initApi()
