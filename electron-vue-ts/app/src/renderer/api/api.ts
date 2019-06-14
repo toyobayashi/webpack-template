@@ -1,4 +1,4 @@
-const { importClass } = window.electronClassRpc
+const { importClass } = window.preload.electronClassRpc
 
 const ApiClass = importClass<typeof CApiClass>('ApiClass')
 

@@ -2,7 +2,7 @@ import config from './config'
 
 if (!config.devServerHost) config.devServerHost = 'localhost'
 if (!config.devServerPort) config.devServerPort = 7080
-if (!config.outputPath) config.outputPath = 'public'
+if (!config.outputPath) config.outputPath = 'out'
 if (!config.contentBase) config.contentBase = '..'
 
 export { config }

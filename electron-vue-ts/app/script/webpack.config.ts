@@ -59,7 +59,7 @@ export const mainConfig: Configuration = {
 export const preloadConfig: Configuration = {
   mode,
   context: getPath(),
-  target: 'electron-preload' as any,
+  target: 'electron-renderer',
   entry: {
     preload: [getPath('./src/renderer/preload.ts')]
   },
@@ -193,7 +193,7 @@ if (mode === 'production') {
     minimizer: [terser()]
   }
 } else {
-  rendererConfig.devtool = mainConfig.devtool = 'eval-source-map'
+  rendererConfig.devtool = mainConfig.devtool = preloadConfig.devtool = 'eval-source-map'
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),
     new HotModuleReplacementPlugin(),

@@ -63,7 +63,7 @@ function createWindow () {
       })
     }
   } else {
-    mainWindow.setMenu(null)
+    (mainWindow as any).removeMenu ? (mainWindow as any).removeMenu() : mainWindow.setMenu(null)
     const res = mainWindow.loadURL(format({
       pathname: join(__dirname, 'index.html'),
       protocol: 'file:',
@@ -92,7 +92,7 @@ app.on('activate', function () {
 })
 
 // tslint:disable-next-line: strict-type-predicates
-typeof app.whenReady === 'function' ? app.whenReady().then(main) : app.on('ready', main)
+typeof (app as any).whenReady === 'function' ? (app as any).whenReady().then(main) : app.on('ready', main)
 
 function main () {
   initApi()

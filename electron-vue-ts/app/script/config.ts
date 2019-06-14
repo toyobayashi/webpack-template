@@ -1,7 +1,7 @@
 export default {
   devServerHost: 'localhost',
   devServerPort: 7080,
-  outputPath: 'public',
+  outputPath: 'out',
   contentBase: '..',
-  publicPath: '/app/public/'
+  publicPath: '/app/out/'
 }
