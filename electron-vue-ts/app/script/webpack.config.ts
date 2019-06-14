@@ -1,4 +1,4 @@
-import { Configuration, HotModuleReplacementPlugin } from 'webpack'
+import { Configuration, HotModuleReplacementPlugin, DefinePlugin } from 'webpack'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
@@ -14,7 +14,54 @@ export const mainConfig: Configuration = {
   context: getPath(),
   target: 'electron-main',
   entry: {
-    main: [getPath('./src/main.ts')]
+    main: [getPath('./src/main/main.ts')]
+  },
+  output: {
+    filename: '[name].js',
+    path: getPath(config.outputPath)
+  },
+  node: false,
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: 'ts-loader'
+      },
+      {
+        test: /\.(png|jpg)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: './img/[name].[ext]'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  externals: [webpackNodeExternals()],
+  resolve: {
+    alias: {
+      '@': getPath('src', 'renderer'),
+      '~': getPath('src', 'main')
+    },
+    extensions: ['.ts', '.js', 'json']
+  },
+  plugins: [
+    new DefinePlugin({
+      'process.isLinux': JSON.stringify(process.platform === 'linux')
+    })
+  ]
+}
+
+export const preloadConfig: Configuration = {
+  mode,
+  context: getPath(),
+  target: 'electron-preload' as any,
+  entry: {
+    preload: [getPath('./src/renderer/preload.ts')]
   },
   output: {
     filename: '[name].js',
@@ -30,27 +77,31 @@ export const mainConfig: Configuration = {
       }
     ]
   },
-  externals: [webpackNodeExternals()],
   resolve: {
-    extensions: ['.ts', '.js']
+    alias: {
+      '@': getPath('src', 'renderer'),
+      '~': getPath('src', 'main')
+    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
   }
 }
 
 export const rendererConfig: Configuration = {
   mode,
   context: getPath(),
-  target: 'electron-renderer',
+  target: 'web',
   entry: {
-    renderer: [getPath('./src/index.ts')]
+    renderer: [getPath('./src/renderer/renderer.ts')]
   },
   output: {
     filename: '[name].js',
-    path: getPath(config.outputPath)
+    path: getPath(config.outputPath),
+    chunkFilename: '[name]-[hash:8].js'
   },
-  node: false,
-  externals: [webpackNodeExternals({
-    whitelist: mode === 'production' ? [/vue/] : [/webpack/]
-  })],
+  // node: false,
+  // externals: [webpackNodeExternals({
+  //   whitelist: mode === 'production' ? [/vue/] : [/webpack/]
+  // })],
   module: {
     rules: [
       {
@@ -80,16 +131,20 @@ export const rendererConfig: Configuration = {
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js', '.vue', '.css']
+    alias: {
+      '@': getPath('src', 'renderer'),
+      '~': getPath('src', 'main')
+    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue', '.css', '.json']
   },
   plugins: [
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
       title: 'template-electron-vue-js',
-      template: getPath('./src/index.html'),
+      template: getPath('./src/renderer/index.html'),
       chunks: ['renderer', 'dll', 'common']
     })
-  ],
+  ]/* ,
   optimization: {
     splitChunks: {
       chunks: 'all',
@@ -101,11 +156,11 @@ export const rendererConfig: Configuration = {
         }
       }
     }
-  }
+  } */
 }
 
 if (mode === 'production') {
-  const uglifyJS = () => new TerserWebpackPlugin({
+  const terser = () => new TerserWebpackPlugin({
     parallel: true,
     cache: true,
     terserOptions: {
@@ -125,13 +180,17 @@ if (mode === 'production') {
   rendererConfig.optimization = {
     ...(rendererConfig.optimization || {}),
     minimizer: [
-      uglifyJS(),
+      terser(),
       new OptimizeCSSAssetsPlugin({})
     ]
   }
   mainConfig.optimization = {
     ...(mainConfig.optimization || {}),
-    minimizer: [uglifyJS()]
+    minimizer: [terser()]
+  }
+  preloadConfig.optimization = {
+    ...(mainConfig.optimization || {}),
+    minimizer: [terser()]
   }
 } else {
   rendererConfig.devtool = mainConfig.devtool = 'eval-source-map'
