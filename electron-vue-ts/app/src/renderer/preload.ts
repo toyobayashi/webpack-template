@@ -1,10 +1,10 @@
 import * as electronClassRpc from 'electron-class-rpc/renderer'
 
-window.preload = {
-  electronClassRpc,
-  electron: {
-    version: process.versions.electron
+process.on('loaded', function () {
+  window.preload = {
+    electronClassRpc
   }
-}
-
-console.log('preload: ' + process.type)
+  window.process = {
+    versions: process.versions
+  }
+})

@@ -5,12 +5,13 @@ import * as OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
 import { VueLoaderPlugin } from 'vue-loader'
 import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import * as webpackNodeExternals from 'webpack-node-externals'
-import { mode, getPath, config } from './constant'
+import config from './config'
+import { getPath } from './util'
 
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 
 export const mainConfig: Configuration = {
-  mode,
+  mode: config.mode,
   context: getPath(),
   target: 'electron-main',
   entry: {
@@ -57,7 +58,7 @@ export const mainConfig: Configuration = {
 }
 
 export const preloadConfig: Configuration = {
-  mode,
+  mode: config.mode,
   context: getPath(),
   target: 'electron-renderer',
   entry: {
@@ -87,7 +88,7 @@ export const preloadConfig: Configuration = {
 }
 
 export const rendererConfig: Configuration = {
-  mode,
+  mode: config.mode,
   context: getPath(),
   target: 'web',
   entry: {
@@ -116,7 +117,7 @@ export const rendererConfig: Configuration = {
             loader: 'ts-loader',
             options: {
               appendTsSuffixTo: [/\.vue$/],
-              transpileOnly: mode !== 'production'
+              transpileOnly: config.mode !== 'production'
             }
           }
         ]
@@ -124,7 +125,7 @@ export const rendererConfig: Configuration = {
       {
         test: /\.css$/,
         use: [
-          mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+          config.mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
           'css-loader'
         ]
       }
@@ -159,7 +160,7 @@ export const rendererConfig: Configuration = {
   } */
 }
 
-if (mode === 'production') {
+if (config.mode === 'production') {
   const terser = () => new TerserWebpackPlugin({
     parallel: true,
     cache: true,

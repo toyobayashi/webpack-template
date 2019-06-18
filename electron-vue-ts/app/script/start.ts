@@ -1,5 +1,5 @@
 import { spawn } from 'child_process'
-import { getPath } from './constant'
+import { getPath } from './util'
 
 let cp = spawn(require('electron'), [getPath()])
 cp.stdout.pipe(process.stdout)

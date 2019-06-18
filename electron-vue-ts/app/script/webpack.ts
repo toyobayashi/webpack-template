@@ -1,6 +1,7 @@
 import * as webpack from 'webpack'
 import { mainConfig, rendererConfig, preloadConfig } from './webpack.config'
-import { config, getPath } from './constant'
+import { getPath } from './util'
+import config from './config'
 import * as DevServer from 'webpack-dev-server'
 // import * as fs from 'fs-extra'
 

@@ -4,7 +4,7 @@ import ApiClass from '@/api/api'
 @Component
 export default class extends Vue {
   version: string = (Vue as any).version
-  electronVersion: string = window.preload.electron.version
+  electronVersion: string = window.process.versions.electron
   count: number = 0
 
   test () {

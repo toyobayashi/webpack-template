@@ -55,24 +55,23 @@ function createWindow () {
 
   if (process.env.NODE_ENV !== 'production') {
     const config = require('../../script/config').default
-    const res = mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
-    // tslint:disable-next-line: strict-type-predicates
+    const res: any = mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
+
     if (typeof res.then === 'function' && typeof res.catch === 'function') {
-      res.catch(err => {
+      res.catch((err: Error) => {
         console.log(err)
       })
     }
   } else {
     (mainWindow as any).removeMenu ? (mainWindow as any).removeMenu() : mainWindow.setMenu(null)
-    const res = mainWindow.loadURL(format({
+    const res: any = mainWindow.loadURL(format({
       pathname: join(__dirname, 'index.html'),
       protocol: 'file:',
       slashes: true
     }))
 
-    // tslint:disable-next-line: strict-type-predicates
     if (typeof res.then === 'function' && typeof res.catch === 'function') {
-      res.catch(err => {
+      res.catch((err: Error) => {
         console.log(err)
       })
     }
