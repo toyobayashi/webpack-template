@@ -27,7 +27,15 @@ export const mainConfig: Configuration = {
       {
         test: /\.ts$/,
         exclude: /node_modules/,
-        loader: 'ts-loader'
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+              configFile: getPath('./src/main/tsconfig.json')
+            }
+          }
+        ]
       },
       {
         test: /\.(png|jpg)$/,
@@ -53,6 +61,10 @@ export const mainConfig: Configuration = {
   plugins: [
     new DefinePlugin({
       'process.isLinux': JSON.stringify(process.platform === 'linux')
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      tslint: true,
+      tsconfig: getPath('./src/main/tsconfig.json')
     })
   ]
 }
@@ -62,19 +74,28 @@ export const preloadConfig: Configuration = {
   context: getPath(),
   target: 'electron-renderer',
   entry: {
-    preload: [getPath('./src/renderer/preload.ts')]
+    preload: [getPath('./src/preload/preload.ts')]
   },
   output: {
     filename: '[name].js',
     path: getPath(config.outputPath)
   },
   node: false,
+  externals: [webpackNodeExternals()],
   module: {
     rules: [
       {
         test: /\.ts$/,
         exclude: /node_modules/,
-        loader: 'ts-loader'
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+              configFile: getPath('./src/preload/tsconfig.json')
+            }
+          }
+        ]
       }
     ]
   },
@@ -84,7 +105,13 @@ export const preloadConfig: Configuration = {
       '~': getPath('src', 'main')
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
-  }
+  },
+  plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      tslint: true,
+      tsconfig: getPath('./src/preload/tsconfig.json')
+    })
+  ]
 }
 
 export const rendererConfig: Configuration = {
@@ -116,7 +143,8 @@ export const rendererConfig: Configuration = {
             loader: 'ts-loader',
             options: {
               appendTsSuffixTo: [/\.vue$/],
-              transpileOnly: config.mode !== 'production'
+              transpileOnly: true,
+              configFile: getPath('./src/renderer/tsconfig.json')
             }
           }
         ]
@@ -141,8 +169,13 @@ export const rendererConfig: Configuration = {
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
       title: 'template-electron-vue-js',
-      template: getPath('./src/renderer/index.html'),
-      chunks: ['renderer', 'dll', 'common']
+      template: getPath('./src/renderer/index.html')/* ,
+      chunks: ['renderer', 'dll', 'common'] */
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      tslint: true,
+      tsconfig: getPath('./src/renderer/tsconfig.json'),
+      vue: true
     })
   ]/* ,
   optimization: {
@@ -195,11 +228,18 @@ if (config.mode === 'production') {
     minimizer: [terser()]
   }
 } else {
+  rendererConfig.devServer = {
+    stats: config.statsOptions,
+    hot: true,
+    host: config.devServerHost,
+    inline: true,
+    contentBase: getPath(config.contentBase),
+    publicPath: config.publicPath
+  }
   rendererConfig.devtool = mainConfig.devtool = preloadConfig.devtool = 'eval-source-map'
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),
-    new HotModuleReplacementPlugin(),
-    new ForkTsCheckerWebpackPlugin()
+    new HotModuleReplacementPlugin()
   ]
 
   if (config.publicPath) {

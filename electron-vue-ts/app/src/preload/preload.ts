@@ -1,6 +1,8 @@
+/// <reference path="../../node_modules/electron/electron.d.ts" />
+
 import * as electronClassRpc from 'electron-class-rpc/renderer'
 
-process.on('loaded', function () {
+process.once('loaded', function () {
   window.preload = {
     electronClassRpc
   }

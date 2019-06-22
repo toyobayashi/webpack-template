@@ -1,3 +1,7 @@
+import * as webpack from 'webpack'
+
+type WebpackToString = boolean | 'errors-only' | 'errors-warnings' | 'minimal' | 'none' | 'normal' | 'verbose' | webpack.Stats.ToStringOptionsObject
+
 interface Config {
   mode: 'production' | 'development'
   devServerHost: string
@@ -5,6 +9,7 @@ interface Config {
   outputPath: string
   contentBase: string
   publicPath: string
+  statsOptions: WebpackToString
 }
 
 const config: Config = {
@@ -13,7 +18,14 @@ const config: Config = {
   devServerPort: 7080,
   outputPath: 'out',
   contentBase: '..',
-  publicPath: '/app/out/'
+  publicPath: '/app/out/',
+
+  statsOptions: 'errors-warnings' /* {
+    colors: true,
+    children: false,
+    modules: false,
+    entrypoints: false
+  } */
 }
 
 export default config
