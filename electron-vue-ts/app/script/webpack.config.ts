@@ -96,8 +96,7 @@ export const rendererConfig: Configuration = {
   },
   output: {
     filename: '[name].js',
-    path: getPath(config.outputPath),
-    chunkFilename: '[name]-[hash:8].js'
+    path: getPath(config.outputPath)
   },
   // node: false,
   // externals: [webpackNodeExternals({
@@ -170,7 +169,9 @@ if (config.mode === 'production') {
         beautify: false
       }
     }
-  })
+  });
+
+  (rendererConfig.output as any).chunkFilename = '[name]-[hash:8].js'
 
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),

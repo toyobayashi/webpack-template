@@ -1,17 +1,14 @@
 import '@/style/style.css'
+import Vue from 'vue'
+import App from '@/App.vue'
+import store from '@/store/store'
 
-async function main () {
-  const { default: Vue } = (await import(/* webpackChunkName: "vue" */ 'vue'))
-  const { default: App } = (await import(/* webpackChunkName: "App" */ '@/App.vue'))
+const vm = new Vue({
+  store,
+  render: h => h(App)
+})
 
-  const vm = new Vue({
-    render: h => h(App)
-  })
-
-  vm.$mount('#root')
-}
-
-main().catch(err => console.log(err))
+vm.$mount('#root')
 
 if (process.env.NODE_ENV !== 'production') {
   if ((module as any).hot) (module as any).hot.accept()
