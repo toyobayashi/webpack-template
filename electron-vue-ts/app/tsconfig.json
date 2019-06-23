@@ -8,11 +8,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "src/renderer/*"
-      ],
-      "~/*": [
-        "src/main/*"
-      ],
+        "src/*"
+      ]
     },
   }
 }

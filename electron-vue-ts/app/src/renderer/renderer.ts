@@ -1,7 +1,7 @@
-import '@/style/style.css'
+import '@/renderer/style/style.styl'
 import Vue from 'vue'
-import App from '@/App.vue'
-import store from '@/store/store'
+import App from '@/renderer/App.vue'
+import store from '@/renderer/store/store'
 
 const vm = new Vue({
   store,

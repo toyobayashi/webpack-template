@@ -7,8 +7,14 @@ import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import * as webpackNodeExternals from 'webpack-node-externals'
 import config from './config'
 import { getPath } from './util'
+import * as TerserWebpackPlugin from 'terser-webpack-plugin'
 
-const TerserWebpackPlugin = require('terser-webpack-plugin')
+const indexHtml = getPath('./src/renderer/index.html')
+
+const cssLoader = [
+  config.mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+  'css-loader'
+]
 
 export const mainConfig: Configuration = {
   mode: config.mode,
@@ -53,8 +59,7 @@ export const mainConfig: Configuration = {
   externals: [webpackNodeExternals()],
   resolve: {
     alias: {
-      '@': getPath('src', 'renderer'),
-      '~': getPath('src', 'main')
+      '@': getPath('src')
     },
     extensions: ['.ts', '.js', 'json']
   },
@@ -97,8 +102,7 @@ export const preloadConfig: Configuration = {
   },
   resolve: {
     alias: {
-      '@': getPath('src', 'renderer'),
-      '~': getPath('src', 'main')
+      '@': getPath('src')
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
   }
@@ -126,7 +130,7 @@ export const rendererConfig: Configuration = {
         loader: 'vue-loader'
       },
       {
-        test: /\.ts$/,
+        test: /\.ts(x)?$/,
         exclude: /node_modules/,
         use: [
           {
@@ -142,24 +146,29 @@ export const rendererConfig: Configuration = {
       {
         test: /\.css$/,
         use: [
-          config.mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
-          'css-loader'
+          ...cssLoader
+        ]
+      },
+      {
+        test: /\.styl(us)?$/,
+        use: [
+          ...cssLoader,
+          'stylus-loader'
         ]
       }
     ]
   },
   resolve: {
     alias: {
-      '@': getPath('src', 'renderer'),
-      '~': getPath('src', 'main')
+      '@': getPath('src')
     },
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue', '.css', '.json']
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue', '.css', '.styl', '.json']
   },
   plugins: [
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
       title: require('../package.json').name,
-      template: getPath('./src/renderer/index.html'),
+      template: indexHtml,
       minify: config.mode === 'production' ? {
         removeComments: true,
         collapseWhitespace: true,
@@ -233,7 +242,10 @@ if (config.mode === 'production') {
     host: config.devServerHost,
     inline: true,
     contentBase: getPath(config.contentBase),
-    publicPath: config.publicPath
+    publicPath: config.publicPath,
+    before (_app, server) {
+      (server as any)._watch(indexHtml)
+    }
   }
   rendererConfig.devtool = mainConfig.devtool = preloadConfig.devtool = 'eval-source-map'
   rendererConfig.plugins = [

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { Actions } from '@/store/store'
-import ApiClass from '@/api/api'
+import { Actions } from '@/renderer/store/store'
+import ApiClass from '@/renderer/api/api'
 
 export default Vue.extend({
   data () {

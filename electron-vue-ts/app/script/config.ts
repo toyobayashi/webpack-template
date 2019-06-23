@@ -32,7 +32,7 @@ const config: Config = {
   iconSrcDir: './res',
   iconOutDir: 'img',
   inno: {
-    appid: '527DE8CC-F8A6-4ADF-8977-38BEC5BD8F41',
+    appid: '', // 527DE8CC-F8A6-4ADF-8977-38BEC5BD8F41
     url: ''
   },
 

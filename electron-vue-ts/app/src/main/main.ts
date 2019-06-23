@@ -2,7 +2,7 @@ import { app, BrowserWindow, BrowserWindowConstructorOptions, nativeImage } from
 import { format } from 'url'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import initApi from '~/api'
+import initApi from '@/main/api'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -57,7 +57,7 @@ function createWindow () {
     const config = require('../../script/config').default
     const res: any = mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
 
-    if (typeof res.then === 'function' && typeof res.catch === 'function') {
+    if (res !== undefined && typeof res.then === 'function' && typeof res.catch === 'function') {
       res.catch((err: Error) => {
         console.log(err)
       })
@@ -70,7 +70,7 @@ function createWindow () {
       slashes: true
     }))
 
-    if (typeof res.then === 'function' && typeof res.catch === 'function') {
+    if (res !== undefined && typeof res.then === 'function' && typeof res.catch === 'function') {
       res.catch((err: Error) => {
         console.log(err)
       })
