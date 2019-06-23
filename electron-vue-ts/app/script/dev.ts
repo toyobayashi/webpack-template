@@ -7,18 +7,29 @@ import { ChildProcess } from 'child_process'
 export default function dev () {
   let appProcess: ChildProcess | null = null
 
+  const onExit = function onExit (_code?: number, signal?: string) {
+    appProcess = null
+    if (signal === 'SIGKILL') {
+      appProcess = start()
+      appProcess.once('exit', onExit)
+    }
+  }
+
   const firstLaunch = {
     main: false,
     preload: false,
     renderer: false
   }
 
+  const isReady = () => firstLaunch.main && firstLaunch.preload && firstLaunch.renderer
+
   const relaunch = function relaunch () {
     if (appProcess) {
-      appProcess.kill()
-      appProcess = null
+      appProcess.kill('SIGKILL')
+    } else {
+      appProcess = start()
+      appProcess.once('exit', onExit)
     }
-    appProcess = start()
   }
 
   watch(mainConfig, function watchHandler (err, stats) {
@@ -26,13 +37,14 @@ export default function dev () {
       console.log(err)
       return
     }
-    console.log(stats.toString(config.statsOptions) + '\n')
 
     if (!firstLaunch.main) firstLaunch.main = true
 
-    if (firstLaunch.main && firstLaunch.preload && firstLaunch.renderer) {
+    if (isReady()) {
       relaunch()
     }
+
+    console.log(stats.toString(config.statsOptions) + '\n')
   })
 
   watch(preloadConfig, function watchHandler (err, stats) {
@@ -40,13 +52,14 @@ export default function dev () {
       console.log(err)
       return
     }
-    console.log(stats.toString(config.statsOptions) + '\n')
 
     if (!firstLaunch.preload) firstLaunch.preload = true
 
-    if (firstLaunch.main && firstLaunch.preload && firstLaunch.renderer) {
+    if (isReady()) {
       relaunch()
     }
+
+    console.log(stats.toString(config.statsOptions) + '\n')
   })
 
   startDevServer(rendererConfig, config.devServerPort, config.devServerHost, function (err) {
@@ -56,7 +69,7 @@ export default function dev () {
     }
     if (!firstLaunch.renderer) firstLaunch.renderer = true
 
-    if (firstLaunch.main && firstLaunch.preload && firstLaunch.renderer) {
+    if (!appProcess && firstLaunch.main && firstLaunch.preload && firstLaunch.renderer) {
       relaunch()
     }
   })

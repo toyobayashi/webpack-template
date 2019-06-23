@@ -20,12 +20,12 @@ const config: Config = {
   contentBase: '..',
   publicPath: '/app/out/',
 
-  statsOptions: 'errors-warnings' /* {
+  statsOptions: {
     colors: true,
     children: false,
     modules: false,
     entrypoints: false
-  } */
+  }
 }
 
 export default config
