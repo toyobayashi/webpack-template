@@ -31,7 +31,7 @@ export const mainConfig: Configuration = {
           {
             loader: 'ts-loader',
             options: {
-              transpileOnly: true,
+              transpileOnly: config.mode !== 'production',
               configFile: getPath('./src/main/tsconfig.json')
             }
           }
@@ -43,7 +43,7 @@ export const mainConfig: Configuration = {
           {
             loader: 'file-loader',
             options: {
-              name: './img/[name].[ext]'
+              name: `./${config.iconOutDir}/[name].[ext]`
             }
           }
         ]
@@ -61,10 +61,6 @@ export const mainConfig: Configuration = {
   plugins: [
     new DefinePlugin({
       'process.isLinux': JSON.stringify(process.platform === 'linux')
-    }),
-    new ForkTsCheckerWebpackPlugin({
-      tslint: true,
-      tsconfig: getPath('./src/main/tsconfig.json')
     })
   ]
 }
@@ -91,7 +87,7 @@ export const preloadConfig: Configuration = {
           {
             loader: 'ts-loader',
             options: {
-              transpileOnly: true,
+              transpileOnly: config.mode !== 'production',
               configFile: getPath('./src/preload/tsconfig.json')
             }
           }
@@ -105,13 +101,7 @@ export const preloadConfig: Configuration = {
       '~': getPath('src', 'main')
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
-  },
-  plugins: [
-    new ForkTsCheckerWebpackPlugin({
-      tslint: true,
-      tsconfig: getPath('./src/preload/tsconfig.json')
-    })
-  ]
+  }
 }
 
 export const rendererConfig: Configuration = {
@@ -143,7 +133,7 @@ export const rendererConfig: Configuration = {
             loader: 'ts-loader',
             options: {
               appendTsSuffixTo: [/\.vue$/],
-              transpileOnly: true,
+              transpileOnly: config.mode !== 'production',
               configFile: getPath('./src/renderer/tsconfig.json')
             }
           }
@@ -168,28 +158,37 @@ export const rendererConfig: Configuration = {
   plugins: [
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
-      title: 'template-electron-vue-js',
-      template: getPath('./src/renderer/index.html')/* ,
+      title: require('../package.json').name,
+      template: getPath('./src/renderer/index.html'),
+      minify: config.mode === 'production' ? {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        collapseBooleanAttributes: true,
+        removeScriptTypeAttributes: true
+      } : false /* ,
       chunks: ['renderer', 'dll', 'common'] */
-    }),
-    new ForkTsCheckerWebpackPlugin({
-      tslint: true,
-      tsconfig: getPath('./src/renderer/tsconfig.json'),
-      vue: true
     })
-  ]/* ,
+  ],
   optimization: {
     splitChunks: {
-      chunks: 'all',
-      name: 'common',
       cacheGroups: {
-        dll: {
+        'node-modules': {
+          name: 'node-modules',
           test: /[\\/]node_modules[\\/]/,
-          name: 'dll'
+          priority: -10,
+          chunks: 'initial'
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          priority: -20,
+          chunks: 'initial',
+          reuseExistingChunk: true
         }
       }
     }
-  } */
+  }
 }
 
 if (config.mode === 'production') {
@@ -202,9 +201,9 @@ if (config.mode === 'production') {
         beautify: false
       }
     }
-  });
+  })
 
-  (rendererConfig.output as any).chunkFilename = '[name]-[hash:8].js'
+  // (rendererConfig.output as any).chunkFilename = '[name]-[hash:8].js'
 
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),
@@ -239,7 +238,28 @@ if (config.mode === 'production') {
   rendererConfig.devtool = mainConfig.devtool = preloadConfig.devtool = 'eval-source-map'
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),
-    new HotModuleReplacementPlugin()
+    new HotModuleReplacementPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+      tslint: true,
+      tsconfig: getPath('./src/renderer/tsconfig.json'),
+      vue: true
+    })
+  ]
+
+  preloadConfig.plugins = [
+    ...(preloadConfig.plugins || []),
+    new ForkTsCheckerWebpackPlugin({
+      tslint: true,
+      tsconfig: getPath('./src/preload/tsconfig.json')
+    })
+  ]
+
+  mainConfig.plugins = [
+    ...(mainConfig.plugins || []),
+    new ForkTsCheckerWebpackPlugin({
+      tslint: true,
+      tsconfig: getPath('./src/main/tsconfig.json')
+    })
   ]
 
   if (config.publicPath) {
