@@ -1,7 +1,6 @@
 import * as packager from 'electron-packager'
 import * as path from 'path'
 import * as fs from 'fs-extra'
-import * as archiver from 'archiver'
 import * as pkg from '../package.json'
 import { execSync, spawn } from 'child_process'
 import build from './build'
@@ -11,6 +10,7 @@ import { productionPackage, packagerOptions, arch } from './packager.config'
 import { getPath } from './util'
 
 const { createPackageWithOptions } = require('asar')
+const crossZip = require('cross-zip')
 
 function isUuid4 (str: string) {
   const reg = /[0123456789ABCDEF]{8}-[0123456789ABCDEF]{4}-4[0123456789ABCDEF]{3}-[89AB][0123456789ABCDEF]{3}-[0123456789ABCDEF]{12}/
@@ -47,30 +47,49 @@ async function rename (appPath: string) {
   return newPath
 }
 
-function zip (source: string, target: string) {
+function zip (source: string, target: string): Promise<number> {
   if (!fs.existsSync(path.dirname(target))) fs.mkdirsSync(path.dirname(target))
   return new Promise<number>((resolve, reject) => {
-    const output = fs.createWriteStream(target)
-    const archive = archiver('zip', {
-      zlib: { level: 9 }
-    })
-
-    output.on('close', function () {
-      resolve(archive.pointer())
-    })
-
-    archive.on('error', function (err) {
-      reject(err)
-    })
-
-    archive.pipe(output)
-
-    archive.directory(source, false)
-
-    archive.finalize().catch(err => {
-      reject(err)
+    crossZip.zip(source, target, (err: Error) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      fs.stat(target, (err, stat) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        if (!stat.isFile()) {
+          reject(new Error('Zip failed.'))
+          return
+        }
+        resolve(stat.size)
+      })
     })
   })
+  // return new Promise<number>((resolve, reject) => {
+  //   const output = fs.createWriteStream(target)
+  //   const archive = archiver('zip', {
+  //     zlib: { level: 9 }
+  //   })
+
+  //   output.on('close', function () {
+  //     resolve(archive.pointer())
+  //   })
+
+  //   archive.on('error', function (err) {
+  //     reject(err)
+  //   })
+
+  //   archive.pipe(output)
+
+  //   archive.directory(source, false)
+
+  //   archive.finalize().catch(err => {
+  //     reject(err)
+  //   })
+  // })
 }
 
 function zipApp (p: string) {

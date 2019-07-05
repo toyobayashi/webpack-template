@@ -48,7 +48,9 @@ const packagerOptions: Options = {
   ignore: /node_modules|res|src|script|README|tslint\.json|tsconfig|package-lock\.json|\.git|\.vscode|\.npmrc/,
   appCopyright: `Copyright (C) ${new Date().getFullYear()} ${productionPackage.author}`,
   download: {
-    mirror: process.env.npm_config_electron_mirror || 'https://npm.taobao.org/mirrors/electron/'
+    mirrorOptions: {
+      mirror: process.env.npm_config_electron_mirror || 'https://npm.taobao.org/mirrors/electron/'
+    }
   },
   overwrite: true
 }
