@@ -2,6 +2,8 @@ const path = require('path')
 const fs = require('fs-extra')
 const { spawn } = require('child_process')
 const Terser = require('terser')
+const cssnano = require('cssnano')
+const { minify } = require('html-minifier')
 
 const outDir = getPath(require('../tsconfig.prod.json').compilerOptions.outDir)
 
@@ -29,11 +31,21 @@ function main () {
   const cp = spawn(process.platform === 'win32' ? getPath('node_modules/.bin/tsc.cmd') : getPath('node_modules/.bin/tsc'), ['-p', getPath('tsconfig.prod.json')], { cwd: getPath(), stdio: 'inherit' })
   cp.on('exit', function (code, signal) {
     walk(getPath('src'), function (p) {
-      if (path.extname(p) === '.html' || path.extname(p) === '.css') {
-        const target = path.join(outDir, path.relative(getPath('src'), p))
-        console.log(target)
-        fs.mkdirsSync(path.dirname(target))
-        fs.copySync(p, target)
+      const ext = path.extname(p)
+      const target = path.join(outDir, path.relative(getPath('src'), p))
+      fs.mkdirsSync(path.dirname(target))
+      if (ext === '.html') {
+        fs.writeFileSync(target, minify(fs.readFileSync(p, 'utf8'), {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeAttributeQuotes: true,
+          collapseBooleanAttributes: true,
+          removeScriptTypeAttributes: true
+        }), 'utf8')
+      } else if (ext === '.css') {
+        cssnano.process(fs.readFileSync(p, 'utf8'), { from: undefined }, { preset: 'default'}).then(res => {
+          fs.writeFileSync(target, res.css, 'utf8')
+        })
       }
     })
     const outJs = []
