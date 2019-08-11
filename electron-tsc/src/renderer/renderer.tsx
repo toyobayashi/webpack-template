@@ -6,7 +6,7 @@ import { VueConstructor } from 'vue'
 import ReactApp from './ReactApp'
 import VueApp from './VueApp'
 
-const Vue: VueConstructor  = require('vue')
+const Vue: VueConstructor = require('vue')
 
 ReactDOM.render(
   <ReactApp />,
@@ -23,4 +23,5 @@ async function log () {
   console.log(await Promise.resolve('done'))
 }
 
+// tslint:disable-next-line: no-floating-promises
 log()

@@ -101,7 +101,7 @@ function main () {
         clearTimeout(t)
         console.log(name, p)
         t = setTimeout(() => {
-          mainWindow!.webContents.executeJavaScript('window.location.reload()')
+          mainWindow!.webContents.executeJavaScript('window.location.reload()').catch(err => console.error(err))
         }, 300)
       })
       chokidar.watch([join(__dirname, '../main'), join(__dirname, '../common')]).on('all', function (name: string, p: string) {
