@@ -2,7 +2,6 @@ import { app, BrowserWindow, BrowserWindowConstructorOptions, nativeImage } from
 import { format } from 'url'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import initApi from '@/main/api'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -12,8 +11,7 @@ function createWindow () {
     height: 600,
     show: false,
     webPreferences: {
-      nodeIntegration: false,
-      preload: join(__dirname, 'preload.js')
+      nodeIntegration: true
     }
   }
 
@@ -94,6 +92,5 @@ app.on('activate', function () {
 typeof (app as any).whenReady === 'function' ? (app as any).whenReady().then(main) : app.on('ready', main)
 
 function main () {
-  initApi()
   if (!mainWindow) createWindow()
 }

@@ -70,44 +70,6 @@ export const mainConfig: Configuration = {
   ]
 }
 
-export const preloadConfig: Configuration = {
-  mode: config.mode,
-  context: getPath(),
-  target: 'electron-renderer',
-  entry: {
-    preload: [getPath('./src/preload/preload.ts')]
-  },
-  output: {
-    filename: '[name].js',
-    path: getPath(config.outputPath)
-  },
-  node: false,
-  externals: [webpackNodeExternals()],
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              transpileOnly: config.mode !== 'production',
-              configFile: getPath('./src/preload/tsconfig.json')
-            }
-          }
-        ]
-      }
-    ]
-  },
-  resolve: {
-    alias: {
-      '@': getPath('src')
-    },
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
-  }
-}
-
 export const rendererConfig: Configuration = {
   mode: config.mode,
   context: getPath(),
@@ -119,7 +81,7 @@ export const rendererConfig: Configuration = {
     filename: '[name].js',
     path: getPath(config.outputPath)
   },
-  // node: false,
+  node: false,
   // externals: [webpackNodeExternals({
   //   whitelist: mode === 'production' ? [/vue/] : [/webpack/]
   // })],
@@ -205,7 +167,7 @@ if (config.mode === 'production') {
     parallel: true,
     cache: true,
     terserOptions: {
-      ecma: 8,
+      ecma: 9,
       output: {
         beautify: false
       }
@@ -231,10 +193,7 @@ if (config.mode === 'production') {
     ...(mainConfig.optimization || {}),
     minimizer: [terser()]
   }
-  preloadConfig.optimization = {
-    ...(mainConfig.optimization || {}),
-    minimizer: [terser()]
-  }
+
 } else {
   rendererConfig.devServer = {
     stats: config.statsOptions,
@@ -247,7 +206,7 @@ if (config.mode === 'production') {
       (server as any)._watch(indexHtml)
     }
   }
-  rendererConfig.devtool = mainConfig.devtool = preloadConfig.devtool = 'eval-source-map'
+  rendererConfig.devtool = mainConfig.devtool = 'eval-source-map'
   rendererConfig.plugins = [
     ...(rendererConfig.plugins || []),
     new HotModuleReplacementPlugin(),
@@ -255,14 +214,6 @@ if (config.mode === 'production') {
       tslint: true,
       tsconfig: getPath('./src/renderer/tsconfig.json'),
       vue: true
-    })
-  ]
-
-  preloadConfig.plugins = [
-    ...(preloadConfig.plugins || []),
-    new ForkTsCheckerWebpackPlugin({
-      tslint: true,
-      tsconfig: getPath('./src/preload/tsconfig.json')
     })
   ]
 
