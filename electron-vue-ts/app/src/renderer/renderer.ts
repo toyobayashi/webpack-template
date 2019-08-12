@@ -2,6 +2,7 @@ import '@/renderer/style/style.styl'
 import Vue from 'vue'
 import App from '@/renderer/App.vue'
 import store from '@/renderer/store/store'
+import './ipc-renderer'
 
 const vm = new Vue({
   store,

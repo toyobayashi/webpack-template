@@ -2,6 +2,7 @@ import { app, BrowserWindow, BrowserWindowConstructorOptions, nativeImage } from
 import { format } from 'url'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import init from './ipc'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -92,5 +93,6 @@ app.on('activate', function () {
 typeof (app as any).whenReady === 'function' ? (app as any).whenReady().then(main) : app.on('ready', main)
 
 function main () {
+  init()
   if (!mainWindow) createWindow()
 }

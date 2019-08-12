@@ -73,7 +73,7 @@ export const mainConfig: Configuration = {
 export const rendererConfig: Configuration = {
   mode: config.mode,
   context: getPath(),
-  target: 'web',
+  target: 'electron-renderer',
   entry: {
     renderer: [getPath('./src/renderer/renderer.ts')]
   },
