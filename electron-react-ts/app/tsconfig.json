@@ -3,11 +3,14 @@
   "compilerOptions": {
     "jsx": "react",
     "experimentalDecorators": true,
-    "target": "es2017",
-    "module": "esNext",
-    "sourceMap": true
-  },
-  "include": [
-    "./src/**/*"
-  ]
+    "target": "es2018",
+    "module": "esnext",
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
+  }
 }

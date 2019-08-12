@@ -2,8 +2,9 @@ import { app, BrowserWindow, BrowserWindowConstructorOptions, nativeImage } from
 import { format } from 'url'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import init from './ipc'
 
-let mainWindow: BrowserWindow | null
+let mainWindow: BrowserWindow | null = null
 
 function createWindow () {
   const browerWindowOptions: BrowserWindowConstructorOptions = {
@@ -18,7 +19,7 @@ function createWindow () {
   if ((process as any).isLinux) {
     let linuxIcon: string
     try {
-      linuxIcon = require(`../res/1024x1024.png`)
+      linuxIcon = require(`../../res/1024x1024.png`)
     } catch (_) {
       linuxIcon = ''
     }
@@ -52,19 +53,29 @@ function createWindow () {
   })
 
   if (process.env.NODE_ENV !== 'production') {
-    const config = require('../script/config').default
-    mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
+    const config = require('../../script/config').default
+    const res: any = mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
+
+    if (res !== undefined && typeof res.then === 'function' && typeof res.catch === 'function') {
+      res.catch((err: Error) => {
+        console.log(err)
+      })
+    }
   } else {
-    mainWindow.setMenu(null)
-    mainWindow.loadURL(format({
+    (mainWindow as any).removeMenu ? (mainWindow as any).removeMenu() : mainWindow.setMenu(null)
+    const res: any = mainWindow.loadURL(format({
       pathname: join(__dirname, 'index.html'),
       protocol: 'file:',
       slashes: true
     }))
+
+    if (res !== undefined && typeof res.then === 'function' && typeof res.catch === 'function') {
+      res.catch((err: Error) => {
+        console.log(err)
+      })
+    }
   }
 }
-
-app.on('ready', createWindow)
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
@@ -77,3 +88,11 @@ app.on('activate', function () {
     createWindow()
   }
 })
+
+// tslint:disable-next-line: strict-type-predicates
+typeof (app as any).whenReady === 'function' ? (app as any).whenReady().then(main) : app.on('ready', main)
+
+function main () {
+  init()
+  if (!mainWindow) createWindow()
+}

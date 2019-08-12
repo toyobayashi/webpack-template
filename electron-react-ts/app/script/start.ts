@@ -1,21 +1,29 @@
 import { spawn } from 'child_process'
-import getPath from './get-path'
-import * as electron from 'electron'
+import { getPath } from './util'
+import config from './config'
 
-function start () {
-  let cp = spawn(electron as any, [getPath()], { stdio: 'inherit' })
-
-  cp.on('exit', (code: number | null, signal: string | null) => {
-    console.log('code: ' + code)
-    console.log('signal: ' + signal)
-    process.exit(code || 0)
-  })
+export default function start () {
+  if (config.mode === 'production') {
+    const cp = spawn(require('electron'), [
+      getPath()
+    ], {
+      cwd: getPath(),
+      stdio: 'inherit'
+    })
+    return cp
+  } else {
+    const cp = spawn(require('electron'), [
+      '--remote-debugging-port=9222',
+      '--inspect=' + Date.now() % 65536,
+      getPath()
+    ], {
+      cwd: getPath(),
+      stdio: 'inherit'
+    })
+    return cp
+  }
 }
 
-if (process.env.NODE_ENV === 'production') {
-  import('./webpack.prod').then((main) => main.default()).then(start)
-} else if (process.env.NODE_ENV === 'development') {
-  import('./webpack.dev').then((main) => main.default()).then(start)
-} else {
+if (require.main === module) {
   start()
 }

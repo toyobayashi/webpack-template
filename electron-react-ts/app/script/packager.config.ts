@@ -1,16 +1,15 @@
-import { arch as packagerArch, Options } from 'electron-packager'
-import getPath from './get-path'
-import { join } from 'path'
+import { arch as PackagerArch, Options } from 'electron-packager'
+import { getPath } from './util'
 import { execSync } from 'child_process'
 import * as pkg from '../package.json'
 import { existsSync } from 'fs'
 import config from './config'
+import chalk from 'chalk'
 
-if (process.argv.slice(2)[0] !== 'ia32' && process.argv.slice(2)[0] !== 'x64') {
-  throw new Error('ARCH requrie "ia32" or "x64"')
-}
+export const arch: PackagerArch = process.argv.slice(2)[0] as PackagerArch || 'x64'
 
-export const arch = process.argv.slice(2)[0] as packagerArch
+// tslint:disable-next-line: strict-type-predicates
+const author = typeof pkg.author === 'object' ? (pkg.author as any).name as string : pkg.author
 
 interface ProductionPackage {
   name: string
@@ -27,7 +26,7 @@ export const productionPackage: ProductionPackage = {
   name: pkg.name,
   version: pkg.version,
   main: pkg.main,
-  author: typeof pkg.author === 'object' ? (pkg.author as any).name as string : pkg.author,
+  author,
   license: pkg.license
 }
 
@@ -39,28 +38,35 @@ try {
   productionPackage._commit = execSync('git rev-parse HEAD').toString().replace(/[\r\n]/g, '')
   productionPackage._commitDate = new Date((execSync('git log -1').toString().match(/Date:\s*(.*?)\n/) as any)[1]).toISOString()
 } catch (err) {
-  console.log(require('chalk').yellowBright('\n  [WARN] Not a git repository.\n'))
+  console.log(chalk.yellowBright('\n  [WARN] Not a git repository.\n'))
 }
 
 const packagerOptions: Options = {
   dir: getPath(),
-  out: config.distPath,
-  arch: arch,
+  out: getPath(config.distPath),
+  arch,
   ignore: /node_modules|res|src|script|README|tslint\.json|tsconfig|package-lock\.json|\.git|\.vscode|\.npmrc/,
   appCopyright: `Copyright (C) ${new Date().getFullYear()} ${productionPackage.author}`,
-  download: {
-    mirror: process.env.npm_config_electron_mirror || 'https://npm.taobao.org/mirrors/electron/'
-  },
   overwrite: true
 }
 
+if (process.env.npm_config_electron_mirror && process.env.npm_config_electron_mirror.indexOf('taobao') !== -1) {
+  packagerOptions.download = {
+    unsafelyDisableChecksums: true,
+    mirrorOptions: {
+      mirror: process.env.npm_config_electron_mirror.endsWith('/') ? process.env.npm_config_electron_mirror : (process.env.npm_config_electron_mirror + '/'),
+      customDir: pkg.devDependencies.electron
+    }
+  }
+}
+
 if (process.platform === 'win32') {
-  const iconPath = join(config.iconSrcDir, 'app.ico')
+  const iconPath = getPath(config.iconSrcDir, 'app.ico')
   if (existsSync(iconPath)) {
     packagerOptions.icon = iconPath
   }
 } else if (process.platform === 'darwin') {
-  const iconPath = join(config.iconSrcDir, 'app.icns')
+  const iconPath = getPath(config.iconSrcDir, 'app.icns')
   if (existsSync(iconPath)) {
     packagerOptions.icon = iconPath
   }

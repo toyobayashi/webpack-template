@@ -8,7 +8,7 @@ function Package (props: RouteComponentProps) {
       <button onClick={() => history.goBack()}>back</button>
       {location.pathname}
       <hr />
-      <pre style={{ width: '100%',wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>{JSON.stringify(require('../package.json'), null, 2)}</pre>
+      <pre style={{ width: '100%',wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>{JSON.stringify(require('../../package.json'), null, 2)}</pre>
     </div>
   )
 }

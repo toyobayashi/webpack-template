@@ -1,10 +1,11 @@
-import './style.css'
+import '@/renderer/style/style.styl'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import App from './App'
-import store from './store'
+import store from './store/store'
+import './ipc-renderer'
 
 const render = (Component: typeof React.Component) => {
   ReactDOM.render(
