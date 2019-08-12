@@ -1,7 +1,3 @@
-// exports.default = function (cb) {
-//   cb()
-// }
-
 import { src, dest, watch, series, parallel } from 'gulp'
 import * as path from 'path'
 import * as fs from 'fs-extra'
@@ -25,20 +21,20 @@ export function clean () {
   return fs.remove(getPath(tsconfig.compilerOptions.outDir))
 }
 
-export function ts () {
+function ts () {
   return (
-    src(['src/**/*.ts', 'src/**/*.tsx'], { sourcemaps: !isProductionMode })
+    src(['src/**/*.ts', 'src/**/*.tsx'])
       .pipe(tsProject())
       .pipe(terser())
-      .pipe(isProductionMode ? dest(getPath(tsconfig.compilerOptions.outDir)) : dest(getPath(tsconfig.compilerOptions.outDir), { sourcemaps: true }))
+      .pipe(dest(getPath(tsconfig.compilerOptions.outDir)))
   )
 }
 
-export function tscw () {
+function tscw () {
   return spawn(process.platform === 'win32' ? getPath('node_modules/.bin/tsc.cmd') : getPath('node_modules/.bin/tsc'), ['-w', '-p', tsconfigPath], { cwd: getPath(), stdio: 'inherit' })
 }
 
-export function html () {
+function html () {
   if (isProductionMode) {
     return (
       src('src/**/*.html')
@@ -59,14 +55,7 @@ export function html () {
   }
 }
 
-export function watchHtml () {
-  return watch('src/**/*.html', { ignoreInitial: false }, html)
-}
-export function watchCss () {
-  return watch('src/**/*.css', { ignoreInitial: false }, css)
-}
-
-export function css () {
+function css () {
   if (isProductionMode) {
     return (
       src('src/**/*.css')
@@ -83,8 +72,8 @@ export function css () {
 
 export function dev () {
   return clean().then(() => {
-    watchHtml()
-    watchCss()
+    watch('src/**/*.html', { ignoreInitial: false }, html)
+    watch('src/**/*.css', { ignoreInitial: false }, css)
 
     return new Promise<void>(resolve => {
       tscw().once('exit', resolve)
@@ -95,5 +84,3 @@ export function dev () {
 export function build (done) {
   return series(clean, parallel(html, css, ts))(done)
 }
-
-export default isProductionMode ? build : dev

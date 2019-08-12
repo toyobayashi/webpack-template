@@ -7,8 +7,8 @@
     "dev": "cross-env NODE_ENV=development node script/dev",
     "build": "cross-env NODE_ENV=production node script/build",
     "start": "electron .",
-    "dev2": "cross-env NODE_ENV=development gulp",
-    "build2": "cross-env NODE_ENV=production gulp"
+    "dev2": "cross-env NODE_ENV=development gulp dev",
+    "build2": "cross-env NODE_ENV=production gulp build"
   },
   "author": "",
   "license": "ISC",
