@@ -44,7 +44,8 @@ const packagerOptions = {
   dir: getPath(),
   out: getPath(config.distPath),
   arch,
-  ignore: /node_modules|res|src|script|README|tslint\.json|tsconfig|package-lock\.json|\.git|\.vscode|\.npmrc/,
+  // ignore: /node_modules|res|src|script|README|tslint\.json|tsconfig|package-lock\.json|\.git|\.vscode|\.npmrc/,
+  prebuiltAsar: getPath(config.distPath, 'resources/app.asar'),
   appCopyright: `Copyright (C) ${new Date().getFullYear()} ${productionPackage.author}`,
   overwrite: true
 }

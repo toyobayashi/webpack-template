@@ -5,7 +5,7 @@ const config = require('./config.js')
 function start () {
   if (config.mode === 'production') {
     const cp = spawn(require('electron'), [
-      getPath()
+      getPath(config.resourcesPath, 'app')
     ], {
       cwd: getPath(),
       stdio: 'inherit'
@@ -15,7 +15,7 @@ function start () {
     const cp = spawn(require('electron'), [
       '--remote-debugging-port=9222',
       '--inspect=' + Date.now() % 65536,
-      getPath()
+      getPath(config.resourcesPath, 'app')
     ], {
       cwd: getPath(),
       stdio: 'inherit'

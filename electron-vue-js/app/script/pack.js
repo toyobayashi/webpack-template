@@ -141,12 +141,11 @@ function getDirectorySizeSync (dir) {
   return size
 }
 
-async function asarApp (root) {
-  await createPackageWithOptions(root, path.join(root, '../app.asar'), { unpack: process.platform === 'linux' ? `{*.node,**/${path.basename(config.outputPath)}/${config.iconOutDir}/*.png}` : '*.node' })
-  await fs.remove(root)
+async function createAsarApp (root) {
+  await createPackageWithOptions(root, packagerOptions.prebuiltAsar, { unpack: '*.node' })
 }
 
-async function zipAsar (root) {
+async function zipResourcesDir (root) {
   const rootDotDot = path.join(root, '..')
   fs.mkdirsSync(path.join(rootDotDot, '.tmp'))
   await Promise.all([
@@ -170,6 +169,7 @@ function inno (sourceDir) {
       URL: config.inno.url || pkg.name,
       AppId: `{{${config.inno.appid}}`,
       OutputDir: getPath(config.distPath),
+      SetupIconFile: getPath(config.iconSrcDir, 'app.ico'),
       Arch: arch,
       RepoDir: getPath('..'),
       SourceDir: sourceDir,
@@ -188,21 +188,23 @@ async function pack () {
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Bundle production code...`))
   await bundleProductionCode()
 
-  process.stdout.write(chalk.greenBright(`[${new Date().toLocaleString()}] `))
-  const [appPath] = await packageApp()
+  const resourceAppRoot = getPath(config.resourcesPath, 'app')
 
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Write production package.json...`))
-  const root = process.platform === 'darwin' ? path.join(appPath, `${pkg.name}.app/Contents/Resources/app`) : path.join(appPath, 'resources/app')
-  await writePackageJson(root)
+  await writePackageJson(resourceAppRoot)
 
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Install production dependencies...`))
-  execSync(`npm install --no-package-lock --production --arch=${arch} --target_arch=${arch} --build-from-source --runtime=electron --target=${pkg.devDependencies.electron} --dist-url=https://atom.io/download/electron`, { cwd: root, stdio: 'inherit' })
+  execSync(`npm install --no-package-lock --production --arch=${arch} --target_arch=${arch} --build-from-source --runtime=electron --target=${pkg.devDependencies.electron} --dist-url=https://atom.io/download/electron`, { cwd: resourceAppRoot, stdio: 'inherit' })
 
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Make app.asar...`))
-  await asarApp(root)
+  await createAsarApp(resourceAppRoot)
+
+  process.stdout.write(chalk.greenBright(`[${new Date().toLocaleString()}] `))
+  const [appPath] = await packageApp()
+  const root = process.platform === 'darwin' ? path.join(appPath, `${pkg.name}.app/Contents/Resources/app`) : path.join(appPath, 'resources/app')
 
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Zip resources...`))
-  await zipAsar(root)
+  await zipResourcesDir(root)
 
   const newPath = await rename(appPath)
 

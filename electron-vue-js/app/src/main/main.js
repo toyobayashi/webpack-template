@@ -16,25 +16,16 @@ function createWindow () {
     }
   }
 
-  if (process.isLinux) {
-    let linuxIcon
-    try {
-      linuxIcon = require(`../../res/1024x1024.png`)
-    } catch (_) {
-      linuxIcon = ''
-    }
-    if (linuxIcon) {
-      browerWindowOptions.icon = nativeImage.createFromPath(join(__dirname, linuxIcon))
+  if (process.platform === 'linux') {
+    const linuxIcon = join(__dirname, '../../icon/app.png')
+    if (existsSync(linuxIcon)) {
+      browerWindowOptions.icon = nativeImage.createFromPath(linuxIcon)
     }
   } else {
     if (process.env.NODE_ENV !== 'production') {
-      let icon = ''
-
-      const iconPath = join(__dirname, `../res/app.${process.platform === 'win32' ? 'ico' : 'icns'}`)
-      if (existsSync(iconPath)) icon = iconPath
-
-      if (icon) {
-        browerWindowOptions.icon = nativeImage.createFromPath(icon)
+      const iconPath = join(__dirname, `../../../icon/app.${process.platform === 'win32' ? 'ico' : 'icns'}`)
+      if (existsSync(iconPath)) {
+        browerWindowOptions.icon = nativeImage.createFromPath(iconPath)
       }
     }
   }
@@ -64,7 +55,7 @@ function createWindow () {
   } else {
     mainWindow.removeMenu ? mainWindow.removeMenu() : mainWindow.setMenu(null)
     const res = mainWindow.loadURL(format({
-      pathname: join(__dirname, 'index.html'),
+      pathname: join(__dirname, '../renderer/index.html'),
       protocol: 'file:',
       slashes: true
     }))

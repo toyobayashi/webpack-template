@@ -1,14 +1,15 @@
-const { HotModuleReplacementPlugin, DefinePlugin } = require('webpack')
+const { HotModuleReplacementPlugin/* , DefinePlugin */ } = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const webpackNodeExternals = require('webpack-node-externals')
 const config = require('./config.js')
 const { getPath } = require('./util.js')
 
-const indexHtml = getPath('./src/renderer/index.html')
+const indexHtml = getPath('./public/index.html')
 
 const cssLoader = [
   config.mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
@@ -32,7 +33,7 @@ const mainConfig = {
   },
   output: {
     filename: '[name].js',
-    path: getPath(config.outputPath)
+    path: getPath(config.output.main)
   },
   node: false,
   module: {
@@ -42,17 +43,6 @@ const mainConfig = {
         exclude: /node_modules/,
         use: [
           eslintLoader
-        ]
-      },
-      {
-        test: /\.(png|jpg)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: `./${config.iconOutDir}/[name].[ext]`
-            }
-          }
         ]
       }
     ]
@@ -65,9 +55,9 @@ const mainConfig = {
     extensions: ['.js', '.json']
   },
   plugins: [
-    new DefinePlugin({
-      'process.isLinux': JSON.stringify(process.platform === 'linux')
-    })
+    new CopyWebpackPlugin([
+      { from: getPath('package.json'), to: getPath(config.resourcesPath, 'app/package.json') }
+    ])
   ]
 }
 
@@ -80,7 +70,7 @@ const rendererConfig = {
   },
   output: {
     filename: '[name].js',
-    path: getPath(config.outputPath)
+    path: getPath(config.output.renderer)
   },
   node: false,
 
@@ -138,19 +128,14 @@ const rendererConfig = {
   ],
   optimization: {
     splitChunks: {
+      chunks: 'all',
+      name: false,
       cacheGroups: {
         'node-modules': {
           name: 'node-modules',
           test: /[\\/]node_modules[\\/]/,
           priority: -10,
-          chunks: 'initial'
-        },
-        common: {
-          name: 'common',
-          minChunks: 2,
-          priority: -20,
-          chunks: 'initial',
-          reuseExistingChunk: true
+          chunks: 'all'
         }
       }
     }
@@ -173,7 +158,17 @@ if (config.mode === 'production') {
     ...(rendererConfig.plugins || []),
     new MiniCssExtractPlugin({
       filename: '[name].css'
-    })
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: getPath('public'),
+        to: getPath(config.output.renderer),
+        toType: 'dir',
+        ignore: [
+          '.DS_Store'
+        ]
+      }
+    ])
   ]
   rendererConfig.optimization = {
     ...(rendererConfig.optimization || {}),
@@ -192,7 +187,7 @@ if (config.mode === 'production') {
     hot: true,
     host: config.devServerHost,
     inline: true,
-    contentBase: getPath(config.contentBase),
+    contentBase: [getPath(config.contentBase || config.output.renderer), getPath('public')],
     publicPath: config.publicPath,
     before (_app, server) {
       server._watch(indexHtml)
@@ -207,6 +202,15 @@ if (config.mode === 'production') {
   if (config.publicPath) {
     rendererConfig.output && (rendererConfig.output.publicPath = config.publicPath)
   }
+}
+
+if (process.platform === 'linux') {
+  mainConfig.plugins = [
+    ...(rendererConfig.plugins || []),
+    new CopyWebpackPlugin([
+      { from: getPath(config.iconSrcDir, '1024x1024.png'), to: getPath(config.resourcesPath, 'icon/app.png') }
+    ])
+  ]
 }
 
 module.exports = { mainConfig, rendererConfig }
