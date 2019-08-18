@@ -142,18 +142,27 @@ function getDirectorySizeSync (dir) {
 }
 
 async function createAsarApp (root) {
+  const distResourcesDir = path.dirname(packagerOptions.prebuiltAsar)
+  if (fs.existsSync(distResourcesDir)) fs.removeSync(distResourcesDir)
   await createPackageWithOptions(root, packagerOptions.prebuiltAsar, { unpack: '*.node' })
 }
 
-async function zipResourcesDir (root) {
-  const rootDotDot = path.join(root, '..')
-  fs.mkdirsSync(path.join(rootDotDot, '.tmp'))
-  await Promise.all([
-    fs.copy(path.join(rootDotDot, 'app.asar'), path.join(rootDotDot, '.tmp/app.asar')),
-    fs.existsSync(path.join(rootDotDot, 'app.asar.unpacked')) ? fs.copy(path.join(rootDotDot, 'app.asar.unpacked'), path.join(rootDotDot, '.tmp/app.asar.unpacked')) : Promise.resolve()
-  ])
-  await zip(path.join(rootDotDot, '.tmp'), getPath(config.distPath, `resources-v${productionPackage.version}-${process.platform}-${arch}.zip`))
-  fs.removeSync(path.join(rootDotDot, '.tmp'))
+async function copyExtraResources (root) {
+  await fs.copy(getPath(config.resourcesPath), getPath(config.distPath, 'resources'), { filter: (src) => (!(/[\\/]app[\\/]?/).test(src)) })
+  await fs.copy(getPath(config.distPath, 'resources'), path.join(root, '..'))
+}
+
+async function zipResourcesDir () {
+  const distResourcesDir = path.dirname(packagerOptions.prebuiltAsar)
+  await zip(distResourcesDir, getPath(config.distPath, `resources-v${productionPackage.version}-${process.platform}-${arch}.zip`))
+  // const rootDotDot = path.join(root, '..')
+  // fs.mkdirsSync(path.join(rootDotDot, '.tmp'))
+  // await Promise.all([
+  //   fs.copy(path.join(rootDotDot, 'app.asar'), path.join(rootDotDot, '.tmp/app.asar')),
+  //   fs.existsSync(path.join(rootDotDot, 'app.asar.unpacked')) ? fs.copy(path.join(rootDotDot, 'app.asar.unpacked'), path.join(rootDotDot, '.tmp/app.asar.unpacked')) : Promise.resolve()
+  // ])
+  // await zip(path.join(rootDotDot, '.tmp'), getPath(config.distPath, `resources-v${productionPackage.version}-${process.platform}-${arch}.zip`))
+  // fs.removeSync(path.join(rootDotDot, '.tmp'))
 }
 
 function inno (sourceDir) {
@@ -194,7 +203,8 @@ async function pack () {
   await writePackageJson(resourceAppRoot)
 
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Install production dependencies...`))
-  execSync(`npm install --no-package-lock --production --arch=${arch} --target_arch=${arch} --build-from-source --runtime=electron --target=${pkg.devDependencies.electron} --dist-url=https://atom.io/download/electron`, { cwd: resourceAppRoot, stdio: 'inherit' })
+  execSync(`npm install --no-package-lock --production --arch=${arch} --target_arch=${arch} --build-from-source --runtime=electron --target=${pkg.devDependencies.electron} --disturl=https://electronjs.org/headers`, { cwd: resourceAppRoot, stdio: 'inherit' })
+  await writePackageJson(resourceAppRoot)
 
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Make app.asar...`))
   await createAsarApp(resourceAppRoot)
@@ -202,9 +212,10 @@ async function pack () {
   process.stdout.write(chalk.greenBright(`[${new Date().toLocaleString()}] `))
   const [appPath] = await packageApp()
   const root = process.platform === 'darwin' ? path.join(appPath, `${pkg.name}.app/Contents/Resources/app`) : path.join(appPath, 'resources/app')
+  await copyExtraResources(root)
 
   console.log(chalk.greenBright(`[${new Date().toLocaleString()}] Zip resources...`))
-  await zipResourcesDir(root)
+  await zipResourcesDir()
 
   const newPath = await rename(appPath)
 
