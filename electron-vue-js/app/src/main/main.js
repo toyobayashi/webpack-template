@@ -2,6 +2,7 @@ import { app, BrowserWindow, nativeImage } from 'electron'
 import { format } from 'url'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import init from './ipc'
 
 let mainWindow = null
 
@@ -92,5 +93,6 @@ app.on('activate', function () {
 typeof app.whenReady === 'function' ? app.whenReady().then(main) : app.on('ready', main)
 
 function main () {
+  init()
   if (!mainWindow) createWindow()
 }

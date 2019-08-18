@@ -15,6 +15,14 @@ const cssLoader = [
   'css-loader'
 ]
 
+const eslintLoader = {
+  loader: 'eslint-loader',
+  options: {
+    emitWarning: true,
+    emitError: false
+  }
+}
+
 const mainConfig = {
   mode: config.mode,
   context: getPath(),
@@ -29,6 +37,13 @@ const mainConfig = {
   node: false,
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          eslintLoader
+        ]
+      },
       {
         test: /\.(png|jpg)$/,
         use: [
@@ -56,7 +71,7 @@ const mainConfig = {
   ]
 }
 
-let rendererConfig = {
+const rendererConfig = {
   mode: config.mode,
   context: getPath(),
   target: 'electron-renderer',
@@ -72,8 +87,18 @@ let rendererConfig = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          eslintLoader
+        ]
+      },
+      {
         test: /\.vue$/,
-        loader: 'vue-loader'
+        use: [
+          'vue-loader',
+          eslintLoader
+        ]
       },
       {
         test: /\.css$/,

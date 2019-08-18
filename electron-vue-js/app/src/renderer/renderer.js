@@ -1,19 +1,15 @@
-import './style.css'
+import '@/renderer/style/style.styl'
 import Vue from 'vue'
-import * as electron from 'electron'
-import App from './App.vue'
+import App from '@/renderer/App.vue'
+import store from '@/renderer/store/store'
+import './ipc-renderer'
 
-Vue.use({
-  install (Vue) {
-    Vue.prototype.electron = electron
-  }
-})
-
-/* eslint-disable no-new */
-new Vue({
-  el: '#root',
+const vm = new Vue({
+  store,
   render: h => h(App)
 })
+
+vm.$mount('#root')
 
 if (process.env.NODE_ENV !== 'production') {
   if (module.hot) module.hot.accept()
