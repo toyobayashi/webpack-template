@@ -148,7 +148,10 @@ async function createAsarApp (root) {
 }
 
 async function copyExtraResources (root) {
-  await fs.copy(getPath(config.resourcesPath), getPath(config.distPath, 'resources'), { filter: (src) => (!(/[\\/]app[\\/]?/).test(src)) })
+  const ls = (await fs.readdir(getPath(config.resourcesPath))).filter(item => (item !== 'app'))
+  await Promise.all(ls.map(item => {
+    return fs.copy(getPath(config.resourcesPath, item), getPath(config.distPath, 'resources', item))
+  }))
   await fs.copy(getPath(config.distPath, 'resources'), path.join(root, '..'))
 }
 
