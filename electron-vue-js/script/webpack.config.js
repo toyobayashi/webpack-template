@@ -206,7 +206,7 @@ if (config.mode === 'production') {
 
 if (process.platform === 'linux') {
   mainConfig.plugins = [
-    ...(rendererConfig.plugins || []),
+    ...(mainConfig.plugins || []),
     new CopyWebpackPlugin([
       { from: getPath(config.iconSrcDir, '1024x1024.png'), to: getPath(config.resourcesPath, 'icon/app.png') }
     ])
