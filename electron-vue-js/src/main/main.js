@@ -44,8 +44,7 @@ function createWindow () {
   })
 
   if (process.env.NODE_ENV !== 'production') {
-    const config = require('../../script/config')
-    const res = mainWindow.loadURL(`http://${config.devServerHost}:${config.devServerPort}${config.publicPath}`)
+    const res = mainWindow.loadURL('http://localhost:8050/')
 
     if (res !== undefined && typeof res.then === 'function' && typeof res.catch === 'function') {
       res.catch((err) => {

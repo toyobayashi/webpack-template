@@ -55,15 +55,16 @@ export function parseValue (value) {
 
 export function createValue (desc) {
   switch (desc.type) {
-    case 'Object':
+    case 'Object': {
       const res = {}
       for (const key in desc.value) {
         res[key] = createValue(desc.value[key])
       }
       return res
+    }
     case 'Array':
       return desc.value.map((v) => createValue(v))
-    case 'Error':
+    case 'Error': {
       // tslint:disable-next-line: strict-type-predicates
       const g = typeof window === 'undefined' ? global : window
       const err = g[desc.className] ? new g[desc.className]() : new Error()
@@ -71,6 +72,7 @@ export function createValue (desc) {
         err[key] = createValue(desc.value[key])
       }
       return err
+    }
     case 'Date':
       return new Date(desc.value)
     case 'undefined':
