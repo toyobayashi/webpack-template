@@ -1,3 +1,4 @@
 node_modules
-/app/out/
+.idea
+/resources/app
 /dist
