@@ -1,7 +1,0 @@
-{
-  "devServerHost": "localhost",
-  "devServerPort": 6090,
-  "outputPath": "public",
-  "contentBase": "..",
-  "publicPath": "/app/public/"
-}
