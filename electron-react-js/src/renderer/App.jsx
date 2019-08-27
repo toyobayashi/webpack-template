@@ -4,6 +4,7 @@ class App extends React.Component {
   render () {
     return (
       <div className={'root'}>
+        <img src="../../static.asar/128x128.png" />
         <h1 className="title">Electron React JavaScript</h1>
         <div>React: {React.version}</div>
         <div>Electron: {process.versions.electron}</div>
