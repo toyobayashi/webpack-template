@@ -1,5 +1,6 @@
 <template>
 <div class="root" id="root">
+  <img :src="'../../static.asar/128x128.png'" />
   <h1 class="title">Electron Vue TypeScript</h1>
   <div>Vue: {{version}}</div>
   <div>Electron: {{electronVersion}}</div>
