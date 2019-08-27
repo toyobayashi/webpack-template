@@ -13,7 +13,7 @@
       "request": "attach",
       "name": "Attach to Renderer Process",
       "port": 9222,
-      "webRoot": "${workspaceFolder}/resources/app/renderer",
+      "webRoot": "${workspaceFolder}/resources",
       "sourceMaps": true,
       "sourceMapPathOverrides": {
         "webpack:///*": "${workspaceFolder}/*",

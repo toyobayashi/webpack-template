@@ -44,7 +44,7 @@ function createWindow () {
   })
 
   if (process.env.NODE_ENV !== 'production') {
-    const res = mainWindow.loadURL('http://localhost:8050/')
+    const res = mainWindow.loadURL('http://localhost:8050/app/renderer/')
 
     if (res !== undefined && typeof res.then === 'function' && typeof res.catch === 'function') {
       res.catch((err) => {
