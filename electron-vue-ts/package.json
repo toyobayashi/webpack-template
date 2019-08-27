@@ -1,0 +1,40 @@
+{
+  "name": "template-electron-vue-ts",
+  "version": "1.0.0",
+  "description": "template-electron-vue-ts",
+  "main": "./main/main.js",
+  "scripts": {
+    "dev": "ty dev --dev-server-port=7080",
+    "serve": "ty serve --dev-server-port=7080",
+    "build": "ty build",
+    "start": "ty start --mode=production",
+    "pack:ia32": "ty pack --arch=ia32",
+    "pack:x64": "ty pack",
+    "vscode": "ty vscode",
+    "inspect": "ty inspect",
+    "test": "npm run build && npm start"
+  },
+  "keywords": [
+    "vue",
+    "typescript"
+  ],
+  "author": "toyobayashi",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/fs-extra": "^8.0.0",
+    "@types/node": "^12.7.1",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "cross-env": "^5.2.0",
+    "electron": "6.0.3",
+    "eslint": "^6.2.2",
+    "eslint-plugin-vue": "^5.2.3",
+    "stylus": "^0.54.5",
+    "ty": "github:toyobayashi/ty",
+    "typescript": "^3.5.3",
+    "vue": "^2.6.10",
+    "vue-router": "^3.1.2",
+    "vue-template-compiler": "^2.6.10",
+    "vuex": "^3.1.1"
+  }
+}
