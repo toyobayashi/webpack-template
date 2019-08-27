@@ -4,8 +4,10 @@
   "description": "template-react-js",
   "main": "./src/index.jsx",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development node ./script/webpack.js",
-    "prod": "cross-env NODE_ENV=production node ./script/webpack.js"
+    "serve": "ty serve --dev-server-port=8090",
+    "build": "ty build",
+    "vscode": "ty vscode --dev-server-port=8090",
+    "inspect": "ty inspect"
   },
   "keywords": [
     "react"
@@ -13,31 +15,22 @@
   "author": "toyobayashi",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.1.5",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.1.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.4",
+    "core-js": "^3.2.1",
     "cross-env": "^5.2.0",
-    "css-loader": "^1.0.1",
-    "eslint": "^5.9.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-html": "^5.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^8.0.0",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-react": "^7.11.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "fs-extra": "^7.0.1",
-    "html-webpack-plugin": "^3.2.0",
-    "mini-css-extract-plugin": "^0.4.4",
-    "optimize-css-assets-webpack-plugin": "^5.0.1",
-    "react": "16.6.3",
-    "react-dom": "16.6.3",
-    "react-hot-loader": "^4.3.12",
-    "style-loader": "^0.23.1",
-    "uglifyjs-webpack-plugin": "^2.0.1",
-    "webpack": "^4.25.1",
-    "webpack-dev-server": "^3.1.10"
+    "eslint": "^6.2.2",
+    "eslint-config-standard": "^14.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-react": "^7.14.3",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-hot-loader": "^4.12.11",
+    "regenerator-runtime": "^0.13.3",
+    "ty": "github:toyobayashi/ty"
   }
 }

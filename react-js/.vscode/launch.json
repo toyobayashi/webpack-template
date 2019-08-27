@@ -3,14 +3,27 @@
   "configurations": [
     {
       "type": "chrome",
+      "request": "attach",
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/dist",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///*": "${workspaceFolder}/*",
+        "webpack:///./*": "${workspaceFolder}/*"
+      }
+    },
+    {
+      "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome",
+      "port": 9222,
       "url": "http://localhost:8090",
+      "webRoot": "${workspaceFolder}/dist",
       "sourceMaps": true,
-      "webRoot": "${workspaceFolder}/public",
-      "breakOnLoad": true,
       "sourceMapPathOverrides": {
-        "webpack:///./*": "${webRoot}/../*",
+        "webpack:///*": "${workspaceFolder}/*",
+        "webpack:///./*": "${workspaceFolder}/*"
       }
     }
   ]
