@@ -3,10 +3,12 @@ import { format } from 'url'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import init from './ipc'
+import { hello } from './hello'
 
 let mainWindow = null
 
 function createWindow () {
+  console.log(hello())
   const browerWindowOptions = {
     width: 800,
     height: 600,
