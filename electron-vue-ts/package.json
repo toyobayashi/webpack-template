@@ -21,15 +21,15 @@
   "author": "toyobayashi",
   "license": "MIT",
   "devDependencies": {
-    "@tybys/ty": "^0.3.2",
+    "@tybys/ty": "^0.3.4",
     "@types/fs-extra": "^8.0.0",
-    "@types/node": "^12.7.4",
-    "@typescript-eslint/eslint-plugin": "^2.1.0",
-    "@typescript-eslint/parser": "^2.1.0",
+    "@types/node": "^12.7.5",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
     "cross-env": "^5.2.0",
-    "electron": "6.0.7",
-    "eslint": "^6.3.0",
-    "eslint-config-standard": "^14.1.0",
+    "electron": "6.0.10",
+    "eslint": "^6.4.0",
+    "eslint-config-standard-with-typescript": "^9.0.0",
     "eslint-plugin-html": "^6.0.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",
@@ -42,5 +42,8 @@
     "vue-router": "^3.1.3",
     "vue-template-compiler": "^2.6.10",
     "vuex": "^3.1.1"
+  },
+  "dependencies": {
+    "@tybys/electron-ipc-handle-invoke": "^1.0.1"
   }
 }
