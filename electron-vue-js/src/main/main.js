@@ -1,3 +1,4 @@
+import '@tybys/electron-ipc-handle-invoke/main.js'
 import { app, BrowserWindow, nativeImage } from 'electron'
 import { format } from 'url'
 import { join } from 'path'

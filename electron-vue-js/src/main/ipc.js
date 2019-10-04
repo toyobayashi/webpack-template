@@ -1,4 +1,3 @@
-import './ipc-main'
 import { ipcMain } from 'electron'
 
 export default function init () {

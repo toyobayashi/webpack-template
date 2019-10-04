@@ -21,7 +21,7 @@
   "author": "toyobayashi",
   "license": "MIT",
   "devDependencies": {
-    "@tybys/ty": "^0.3.5",
+    "@tybys/ty": "^0.4.0",
     "@types/fs-extra": "^8.0.0",
     "@types/node": "^12.7.5",
     "@typescript-eslint/eslint-plugin": "^2.3.2",

@@ -20,9 +20,9 @@
   "author": "toyobayashi",
   "license": "MIT",
   "devDependencies": {
-    "@tybys/ty": "^0.3.2",
+    "@tybys/ty": "^0.4.0",
     "cross-env": "^5.2.0",
-    "electron": "6.0.3",
+    "electron": "6.0.7",
     "eslint": "^6.2.2",
     "eslint-config-standard": "^14.0.1",
     "eslint-plugin-html": "^6.0.0",
@@ -36,5 +36,8 @@
     "vue-router": "^3.1.2",
     "vue-template-compiler": "^2.6.10",
     "vuex": "^3.1.1"
+  },
+  "dependencies": {
+    "@tybys/electron-ipc-handle-invoke": "^1.0.1"
   }
 }
