@@ -2,7 +2,7 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const TerserWebpackPlugin = require('terser-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 const { mode, getPath, config } = require('./constant.js')
 
@@ -10,7 +10,7 @@ const webpackConfig = {
   mode,
   context: getPath(),
   entry: {
-    main: ['@babel/polyfill', getPath('./src/index.js')]
+    main: [getPath('./src/index.js')]
   },
   output: {
     filename: '[name].js',
@@ -24,16 +24,7 @@ const webpackConfig = {
       },
       {
         test: /\.js$/,
-        loader: 'babel-loader',
-        options: {
-          presets: [
-            [
-              '@babel/preset-env', {
-                modules: false
-              }
-            ]
-          ]
-        }
+        loader: 'babel-loader'
       },
       {
         test: /\.css$/,
@@ -67,12 +58,13 @@ const webpackConfig = {
 }
 
 if (mode === 'production') {
-  const uglifyJS = () => new UglifyJSPlugin({
+  const uglifyJS = () => new TerserWebpackPlugin({
     parallel: true,
     cache: true,
-    uglifyOptions: {
+    terserOptions: {
+      ecma: 5,
       output: {
-        comments: false
+        beautify: false
       }
     }
   })
