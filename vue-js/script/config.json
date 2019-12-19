@@ -1,8 +1,11 @@
 {
   "devServerHost": "localhost",
   "devServerPort": 9090,
-  "outputPath": "public",
-  "contentBase": "public",
+  "outputPath": "dist",
+  "contentBase": "dist",
   "publicPath": "/",
-  "open": false
+  "open": false,
+  "html": [
+    { "template": "public/index.html", "title": "template-vue-js" }
+  ]
 }

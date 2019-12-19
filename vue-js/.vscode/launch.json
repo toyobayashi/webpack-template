@@ -6,11 +6,12 @@
       "request": "launch",
       "name": "Launch Chrome",
       "url": "http://localhost:9090",
+      "port": 9222,
       "sourceMaps": true,
-      "webRoot": "${workspaceFolder}/public",
-      "breakOnLoad": true,
+      "webRoot": "${workspaceFolder}/dist",
       "sourceMapPathOverrides": {
-        "webpack:///./*": "${webRoot}/../*",
+        "webpack:///*": "${workspaceFolder}/*",
+        "webpack:///./*": "${workspaceFolder}/*"
       }
     }
   ]

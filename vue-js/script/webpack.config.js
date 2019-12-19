@@ -1,10 +1,20 @@
 const webpack = require('webpack')
+const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const TerserWebpackPlugin = require('terser-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 const { mode, getPath, config } = require('./constant.js')
+
+const htmlMinify = {
+  removeComments: true,
+  collapseWhitespace: true,
+  removeAttributeQuotes: true,
+  collapseBooleanAttributes: true,
+  removeScriptTypeAttributes: true
+}
 
 const webpackConfig = {
   mode,
@@ -30,27 +40,87 @@ const webpackConfig = {
         test: /\.css$/,
         use: [
           mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
-          'css-loader'
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1
+            }
+          },
+          'postcss-loader'
         ]
-      }
+      },
+      {
+        test: /\.styl(us)?$/,
+        use: [
+          mode === 'production' ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 2
+            }
+          },
+          'postcss-loader',
+          'stylus-loader'
+        ]
+      },
+      {
+        test: /\.(png|jpe?g|gif|webp)(\?.*)?$/,
+        use: [
+          createUrlLoader('img')
+        ]
+      },
+      {
+        test: /\.(svg)(\?.*)?$/,
+        use: [
+          createFileLoader('img')
+        ]
+      },
+      {
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+        use: [
+          createUrlLoader('media')
+        ]
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,
+        use: [
+          createUrlLoader('fonts')
+        ]
+      },
+      createEslintLoader(/\.(jsx?|vue)$/)
     ]
   },
   plugins: [
     new VueLoaderPlugin(),
-    new HtmlWebpackPlugin({
-      title: 'template-vue-js',
-      template: getPath('./src/index.html'),
-      chunks: ['main', 'dll', 'common']
+    new CopyWebpackPlugin([
+      {
+        from: getPath('public'),
+        to: getPath(config.outputPath),
+        toType: 'dir',
+        ignore: [
+          '.gitkeep',
+          '.DS_Store'
+        ]
+      }
+    ]),
+    ...config.html.map(tpl => {
+      return new HtmlWebpackPlugin({
+        title: tpl.title,
+        template: getPath(tpl.template),
+        minify: mode === 'production' ? htmlMinify : false
+      })
     })
   ],
   optimization: {
     splitChunks: {
       chunks: 'all',
-      name: 'common',
+      name: false,
       cacheGroups: {
-        dll: {
+        'node-modules': {
+          name: 'node-modules',
           test: /[\\/]node_modules[\\/]/,
-          name: 'dll'
+          priority: -10,
+          chunks: 'all'
         }
       }
     }
@@ -90,6 +160,40 @@ if (mode === 'production') {
 
   if (config.publicPath) {
     webpackConfig.output && (webpackConfig.output.publicPath = config.publicPath)
+  }
+}
+
+function createUrlLoader (dir) {
+  return {
+    loader: 'url-loader',
+    options: {
+      limit: 4096,
+      fallback: createFileLoader(dir, config)
+    }
+  }
+}
+
+function createFileLoader (dir) {
+  return {
+    loader: 'file-loader',
+    options: {
+      name: path.posix.join(config.assetsPath || '', dir, '[name].[ext]')
+    }
+  }
+}
+
+function createEslintLoader (test) {
+  return {
+    test,
+    enforce: 'pre',
+    exclude: /node_modules/,
+    use: [{
+      loader: 'eslint-loader',
+      options: {
+        emitWarning: true,
+        emitError: false
+      }
+    }]
   }
 }
 

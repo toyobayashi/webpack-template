@@ -25,7 +25,14 @@ function main () {
     hot: true,
     host: config.devServerHost,
     inline: true,
-    contentBase: getPath(config.contentBase)
+    contentBase: getPath(config.contentBase),
+    before (_app, server) {
+      for (let i = 0; i < config.html.length; i++) {
+        const item = config.html[i]
+        const tpl = typeof item === 'string' ? item : item.template
+        server._watch(getPath(tpl))
+      }
+    }
   }
   if (config.publicPath) devServerOptions.publicPath = config.publicPath
   DevServer.addDevServerEntrypoints(webpackConfig, devServerOptions)
