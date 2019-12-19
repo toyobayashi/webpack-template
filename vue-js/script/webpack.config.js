@@ -26,6 +26,14 @@ const webpackConfig = {
     filename: '[name].js',
     path: getPath(config.outputPath)
   },
+  node: {
+    setImmediate: false,
+    dgram: 'empty',
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    child_process: 'empty'
+  },
   module: {
     rules: [
       {
@@ -60,7 +68,12 @@ const webpackConfig = {
             }
           },
           'postcss-loader',
-          'stylus-loader'
+          {
+            loader: 'stylus-loader',
+            options: {
+              preferPathResolver: 'webpack'
+            }
+          }
         ]
       },
       {

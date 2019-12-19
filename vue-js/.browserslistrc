@@ -1,6 +1,7 @@
+>= 0.25%
 Chrome >= 49
 Firefox >= 45
 Safari >= 10
 Edge >= 13
 iOS >= 10
-IE >= 9
+ie >= 9
