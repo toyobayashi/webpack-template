@@ -1,4 +1,3 @@
-import '@babel/polyfill'
 import './style.styl'
 import Vue from 'vue'
 import App from './App.vue'

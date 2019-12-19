@@ -20,7 +20,7 @@ const webpackConfig = {
   mode,
   context: getPath(),
   entry: {
-    main: [getPath('./src/index.js')]
+    main: ['@babel/polyfill', getPath('./src/index.js')]
   },
   output: {
     filename: '[name].js',
