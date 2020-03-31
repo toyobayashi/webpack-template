@@ -1,3 +1,4 @@
+import '@tybys/electron-ipc-handle-invoke/main.js'
 import { ipcMain } from 'electron'
 
 export default function init () {

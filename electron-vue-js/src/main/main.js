@@ -1,15 +1,12 @@
-import '@tybys/electron-ipc-handle-invoke/main.js'
 import { app, BrowserWindow, nativeImage } from 'electron'
 import { format } from 'url'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import init from './ipc'
-import { hello } from './hello'
 
 let mainWindow = null
 
 function createWindow () {
-  console.log(hello())
   const browerWindowOptions = {
     width: 800,
     height: 600,

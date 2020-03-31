@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "react",
     "module": "esnext",
-    "target": "es2018"
+    "target": "es2019"
   },
   "include": [
     "./**/*"
