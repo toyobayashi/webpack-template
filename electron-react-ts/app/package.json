@@ -37,7 +37,7 @@
     "cross-env": "^5.2.0",
     "cross-zip": "2.1.5",
     "css-loader": "^3.2.0",
-    "electron": "6.0.1",
+    "electron": "7.2.4",
     "electron-packager": "^14.0.4",
     "file-loader": "^4.2.0",
     "fork-ts-checker-webpack-plugin": "^1.5.0",
